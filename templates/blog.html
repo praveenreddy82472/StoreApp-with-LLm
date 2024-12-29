@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog</title>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        /* Header Styling */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #B0E992; /* Light Green */
+            padding: 20px 40px;
+            position: relative;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .store-name {
+            font-size: 1.8rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #3498db;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+
+        .profile-avatar img {
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+        }
+
+        /* Buttons Styling */
+        .toggle-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .toggle-buttons button {
+            padding: 12px 25px;
+            margin: 10px;
+            border: none;
+            border-radius: 30px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .toggle-buttons button:hover {
+            background-color: #45a049;
+        }
+
+        /* Form Styling */
+        form {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        label {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            border: 1px solid #4CAF50;
+            outline: none;
+        }
+
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        /* Blog Post Layout */
+        .blog-post {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .blog-post img {
+            max-width: 100%;
+            height: auto;
+            object-fit: cover;
+            margin-top: 15px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .blog-post img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .blog-post p {
+            font-size: 1rem;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* Quill Editor Styling */
+        .editor {
+            height: 200px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
+
+        /* Hide content before form submission */
+        #blogPosts {
+            display: block;
+        }
+        #createForm {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='images/rice_yield.jpg') }}" alt="Rice Yield Logo" class="logo-image">
+            <h1 class="store-name">Praveen Store</h1>
+        </div>
+        <a href="{{ url_for('profile') }}" class="profile-avatar">
+            <img src="{{ url_for('static', filename='uploads/' + user.profile_picture) }}" alt="Profile Picture">
+        </a>
+    </header>
+
+    <h1 style="text-align: center; color: #4CAF50;">Blog</h1>
+
+    <!-- Toggle Buttons -->
+    <div class="toggle-buttons">
+        <button id="createBtn" onclick="toggleCreate()">Create Post</button>
+        <button id="readBtn" onclick="toggleRead()">Read Posts</button>
+        <button onclick="window.location.href='{{ url_for('dashboard') }}'">Back</button>
+    </div>
+
+    <!-- Create Post Form -->
+    <form id="createForm" method="POST" enctype="multipart/form-data">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" required>
+
+        <label for="author">Author</label>
+        <input type="text" id="author" name="author" required>
+
+        <label for="content">Content</label>
+        <!-- Quill Editor Container -->
+        <div id="editor" class="editor"></div>
+
+        <label for="image">Upload Image (optional)</label>
+        <input type="file" id="image" name="image">
+
+        <button type="submit">Create Blog Post</button>
+    </form>
+
+    <!-- Blog Posts Display -->
+    <div id="blogPosts">
+        {% for post in posts %}
+        <div class="blog-post">
+            <h2>{{ post.title }}</h2>
+            <p>By: {{ post.author }} | {{ post.timestamp }}</p>
+            <div>{{ post.content|safe }}</div> <!-- Render HTML content safely -->
+            {% if post.image %}
+                <img src="{{ url_for('static', filename='blogs/' + post.author | replace(' ', '_') + '/images/' + post.image) }}" alt="Blog Image">
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Quill JS -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+    <script>
+        // Initialize Quill editor
+        var quill = new Quill('#editor', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['bold', 'italic', 'underline'],
+                    ['link'],
+                    [{ 'align': [] }],
+                    ['image']
+                ]
+            }
+        });
+
+        // Get content when submitting the form
+        document.getElementById('createForm').onsubmit = function(event) {
+            var content = quill.root.innerHTML;
+            document.getElementById('content').value = content; // Set content in hidden field or form data
+        }
+
+        function toggleCreate() {
+            document.getElementById('createForm').style.display = 'block';
+            document.getElementById('blogPosts').style.display = 'none';
+            document.getElementById('createBtn').style.backgroundColor = '#45a049';
+            document.getElementById('readBtn').style.backgroundColor = '#4CAF50';
+        }
+
+        function toggleRead() {
+            document.getElementById('createForm').style.display = 'none';
+            document.getElementById('blogPosts').style.display = 'block';
+            document.getElementById('readBtn').style.backgroundColor = '#45a049';
+            document.getElementById('createBtn').style.backgroundColor = '#4CAF50';
+        }
+    </script>
+
+</body>
+</html>

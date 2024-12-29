@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f7fb;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .edit-profile-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 400px;
+        }
+
+        .edit-profile-card h1 {
+            text-align: center;
+            color: #34495e;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-size: 1.1em;
+            color: #34495e;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-group button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .form-group button:hover {
+            background-color: #2980b9;
+        }
+
+        .profile-picture-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-picture-container img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+
+        .form-group input[type="file"] {
+            padding: 5px;
+        }
+
+        .back-to-dashborad {
+            display: block;
+            margin-top: 10px;
+            text-align: center;
+            font-size: 1em;
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .back-to-dashborad:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="edit-profile-card">
+            <h1>Edit Profile</h1>
+            <form method="POST" enctype="multipart/form-data">
+                <!-- Profile Picture -->
+                <div class="profile-picture-container">
+                    <img src="{{ url_for('static', filename='uploads/' + user['profile_picture']) }}" alt="Profile Picture">
+                    <div class="form-group">
+                        <label for="profile_picture">Change Profile Picture</label>
+                        <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+                    </div>
+                </div>
+
+                <!-- Name -->
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" value="{{ user['name'] }}" required>
+                </div>
+
+                <!-- Date of Birth -->
+                <div class="form-group">
+                    <label for="dob">Date of Birth</label>
+                    <input type="date" id="dob" name="dob" value="{{ user['dob'] }}" required>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" value="{{ user['email'] }}" required>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-group">
+                    <button type="submit">Update Profile</button>
+                </div>
+
+                <!-- Back to Dashboard -->
+                <a href="{{ url_for('dashboard') }}" class="back-to-dashborad">Back</a>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

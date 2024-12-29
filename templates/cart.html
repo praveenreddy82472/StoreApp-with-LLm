@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .cart-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        table th {
+            background-color: #f4f4f4;
+        }
+
+        button {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        button:hover {
+            background-color: #ff3333;
+        }
+
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 3px;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: #218838;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .quantity-controls button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 1rem;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .quantity-controls button:hover {
+            background-color: #0056b3;
+        }
+
+        .quantity-controls input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        /* Modern Cart Icon */
+        .cart-icon {
+            font-size: 30px;
+            color: white;
+            position: relative;
+            transition: transform 0.3s ease-in-out, color 0.3s ease;
+        }
+
+        .cart-icon:hover {
+            color: #ffd700; /* Golden hover effect */
+            transform: scale(1.1);
+        }
+
+        /* Cart Count */
+        .cart-count {
+            position: absolute;
+            top: 0px;
+            right: -5px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            background-color: #ff6f00;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid white;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        /* Hide count if it's 0 */
+        .cart-count.zero {
+            opacity: 0;
+            transform: scale(0.5);
+            pointer-events: none;
+        }
+
+        .content {
+            margin-top: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin: 20px 0;
+            font-size: 2.5rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="cart-container">
+        <h1>Your Cart</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr id="product-{{ item.product_id }}">
+                    <td>{{ item.name }}</td>
+                    <td>${{ item.price }}</td>
+                    <td>
+                        <div class="quantity-controls">
+                            <button class="decrease-quantity" data-product-id="{{ item.product_id }}">-</button>
+                            <input type="text" class="quantity-display" value="{{ item.quantity }}" readonly>
+                            <button class="increase-quantity" data-product-id="{{ item.product_id }}">+</button>
+                        </div>
+                    </td>
+                    <td class="total-price">${{ item.total }}</td>
+                    <td>
+                        <form action="{{ url_for('remove_from_cart', cart_id=item.cart_id) }}" method="POST">
+                            <button type="submit">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h3>Total Price: $<span id="total-price">{{ total_price }}</span></h3>
+        <!-- Checkout Button -->
+        <a href="/checkout" class="btn">Proceed to Checkout</a>
+        <a href="/products" class="btn">Continue Shopping</a>
+        <a href="/dashboard" class="btn">Back</a>
+    </div>
+
+    <script>
+        // Helper function to update the total price
+        function updateTotalPrice() {
+            let total = 0;
+            document.querySelectorAll('.total-price').forEach(cell => {
+                total += parseFloat(cell.textContent.replace('$', ''));
+            });
+            document.getElementById('total-price').textContent = total.toFixed(2);
+        }
+
+        // Update cart display (quantity and total)
+        function updateCartDisplay(productId, newQuantity, isRemoved) {
+            const row = document.getElementById('product-' + productId);
+            if (isRemoved) {
+                // If product is removed, remove the entire row
+                row.remove();
+                updateTotalPrice(); // Update the total price after removing the product
+                return;
+            }
+
+            const quantityDisplay = row.querySelector('.quantity-display');
+            const price = parseFloat(row.querySelector('td:nth-child(2)').textContent.replace('$', ''));
+            const totalCell = row.querySelector('.total-price');
+
+            // Update quantity and total price
+            quantityDisplay.value = newQuantity;
+            totalCell.textContent = `$${(price * newQuantity).toFixed(2)}`;
+
+            // Update the overall total price dynamically
+            updateTotalPrice();
+        }
+
+        // Increase quantity
+        document.querySelectorAll('.increase-quantity').forEach(button => {
+            button.addEventListener('click', function () {
+                const productId = this.getAttribute('data-product-id');
+                fetch(`/cart/increase_quantity/${productId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.new_quantity !== undefined) {
+                        updateCartDisplay(productId, data.new_quantity, false);
+                    } else {
+                        alert(data.error || "Failed to update quantity.");
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            });
+        });
+
+        // Decrease quantity
+        document.querySelectorAll('.decrease-quantity').forEach(button => {
+            button.addEventListener('click', function () {
+                const productId = this.getAttribute('data-product-id');
+                fetch(`/cart/decrease_quantity/${productId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.new_quantity !== undefined) {
+                        if (data.new_quantity === 0) {
+                            updateCartDisplay(productId, 0, true); // Remove product from cart if quantity is 0
+                        } else {
+                            updateCartDisplay(productId, data.new_quantity, false);
+                        }
+                    } else {
+                        alert(data.error || "Failed to update quantity.");
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            });
+        });
+    </script>
+</body>
+</html>

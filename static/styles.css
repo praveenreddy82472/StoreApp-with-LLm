@@ -1,0 +1,210 @@
+/* Reset some basic styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body and background styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header with Store Name */
+header {
+    background-color: #87CEEB; /* Sky Blue */
+    padding: 20px 0;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.store-name h1 {
+    font-size: 48px;
+    font-weight: bold;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+/* Main content */
+main {
+    flex: 1;
+    padding: 30px;
+}
+
+/* Flash messages styling */
+.flash-messages {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+.flash {
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.flash.success {
+    background-color: #d4edda; /* Light green */
+    color: #155724; /* Dark green */
+    border: 1px solid #c3e6cb;
+}
+
+.flash.error {
+    background-color: #f8d7da; /* Light red */
+    color: #721c24; /* Dark red */
+    border: 1px solid #f5c6cb;
+}
+
+.flash.info {
+    background-color: #cce5ff; /* Light blue */
+    color: #004085; /* Dark blue */
+    border: 1px solid #b8daff;
+}
+
+.flash.warning {
+    background-color: #fff3cd; /* Light yellow */
+    color: #856404; /* Dark yellow */
+    border: 1px solid #ffeeba;
+}
+
+/* Form container for login and register pages */
+.form-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.form-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 32px;
+}
+
+.form-container form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-container label {
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.form-container input {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.form-container button {
+    padding: 10px;
+    background-color: #87CEEB; /* Sky Blue */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.form-container button:hover {
+    background-color: #1E90FF; /* A bit darker blue */
+}
+
+/* Links */
+a {
+    color: #87CEEB;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Home page container */
+.home-container {
+    text-align: center;
+    padding: 50px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.home-container h2 {
+    font-size: 36px;
+    color: #333;
+}
+
+.home-container p {
+    font-size: 18px;
+    color: #555;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #333;
+    color: #fff;
+    margin-top: 50px;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 10px;
+    background-color: #87CEEB;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 16px;
+    text-align: center;
+}
+
+.button:hover {
+    background-color: #1E90FF;
+}
+
+/* Profile Picture Styling */
+.form-container input[type="file"] {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Profile Picture Preview Styling */
+.profile-picture-preview {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.profile-picture-preview img {
+    max-width: 150px;
+    max-height: 150px;
+    border-radius: 50%; /* Make it round */
+    object-fit: cover; /* Ensure the image fits within the circle */
+    margin-top: 10px;
+}
+

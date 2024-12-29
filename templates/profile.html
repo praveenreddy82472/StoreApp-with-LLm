@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        /* Header Styling */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #48C9B0, #1ABC9C); /* Modern gradient */
+            padding: 20px 40px;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .logo-image:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .store-name {
+            font-size: 2rem;
+            color: white;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #3498db;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-avatar img {
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+        }
+
+        .profile-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        /* Profile Section */
+        .profile-section {
+            margin-top: 120px;
+            padding: 40px 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-section h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            color: #34495e;
+            margin-bottom: 40px;
+            font-weight: 600;
+        }
+
+        .profile-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            padding: 30px;
+            display: flex;
+            gap: 30px;
+        }
+
+        .profile-picture {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-right: 30px;
+        }
+
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-info {
+            flex: 1;
+            color: #34495e;
+        }
+
+        .profile-info h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .profile-info p {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        .profile-actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .btn {
+            background-color: #3498db;
+            color: white;
+            font-size: 1.2em;
+            padding: 15px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        .Edit-Profile, .back-to-dashboard {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 1.1rem;
+            text-align: center;
+            display: block;
+            margin-top: 10px;
+            transition: text-decoration 0.2s ease;
+        }
+
+        .Edit-Profile:hover, .back-to-dashboard:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .profile-card {
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            .profile-info h2 {
+                font-size: 1.8rem;
+            }
+
+            .profile-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 12px;
+            }
+        }
+        /* Order History Section */
+        .order-history {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-history h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #1d76db;
+        }
+
+        .order-history ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .order-history li {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+
+        .order-history li p {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .order-history .UpdateOrderStatus {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .order-history .UpdateOrderStatus:hover {
+            background-color: #45a049;
+            text-decoration: none;
+        }
+
+        /* No Orders Message */
+        .no-orders {
+            color: #888;
+            font-size: 18px;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <!-- Logo -->
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='images/rice_yield.jpg') }}" alt="Rice Yield Logo" class="logo-image">
+            <h1 class="store-name">Praveen Store</h1>
+        </div>
+        <!-- Profile Avatar -->
+        <a href="{{ url_for('profile') }}" class="profile-avatar">
+            <img src="{{ url_for('static', filename='uploads/' + user['profile_picture']) }}" alt="Profile Picture">
+        </a>
+    </header>
+
+    <div class="profile-section">
+        <h1>Welcome to Your Profile</h1>
+        <div class="profile-card">
+            <!-- Profile Picture -->
+            <div class="profile-picture">
+                <img src="{{ url_for('static', filename='uploads/' + user['profile_picture']) }}" alt="Profile Picture">
+            </div>
+            <!-- Profile Info -->
+            <div class="profile-info">
+                <h2>{{ user['name'] }}</h2>
+                <p><strong>Email:</strong> {{ user['email'] }}</p>
+                <p><strong>Date of Birth:</strong> {{ user['dob'] }}</p>
+            </div>
+        </div>
+
+        <div class="profile-actions">
+            <a href="{{ url_for('edit_profile') }}" class="btn">Edit Profile</a>
+            <a href="{{ url_for('dashboard') }}" class="back-to-dashboard">Back to Dashboard</a>
+        </div>
+        <div class="order-history">
+                <h2>Order History</h2>
+                {% if orders %}
+                    <ul>
+                        {% for order in orders %}
+                            <li>
+                                <p><strong>Order ID:</strong> {{ order[0] }}</p>  <!-- Assuming the first column is order_id -->
+                                <p><strong>Total Price:</strong> ${{ order[2] }}</p>  <!-- Assuming the 3rd column is total_price -->
+                                <p><strong>Status:</strong> {{ order[5] }}</p>  <!-- Assuming the 6th column is status -->
+                                <p><strong>Created At:</strong> {{ order[6] }}</p>  <!-- Assuming the 7th column is created_at -->
+                                <!-- Use the correct index for the order ID if necessary -->
+                                <a href="{{ url_for('update_order_status', order_id=order[0]) }}" class="UpdateOrderStatus">Update Order Status</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No orders found.</p>
+                {% endif %}
+            </div>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fc;
+        }
+        header {
+            background-color: #B0E992;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        .logo-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .store-name {
+            font-size: 1.8rem;
+            color: white;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .profile-avatar img {
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+        }
+        .cart-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+        }
+        .cart-icon {
+            font-size: 30px;
+            color: white;
+            transition: transform 0.3s, color 0.3s;
+        }
+        .cart-icon:hover {
+            color: #ffd700;
+            transform: scale(1.1);
+        }
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            background-color: #ff6f00;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid white;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .cart-count.zero {
+            opacity: 0;
+            transform: scale(0.5);
+            pointer-events: none;
+        }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .checkout-form, .cart-summary {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .cart-summary {
+            border: 2px solid #2a8b76;
+        }
+        .cart-summary h3 {
+            color: #2a8b76;
+            margin-bottom: 15px;
+        }
+        .cart-summary table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 10px;
+    }
+    .cart-summary th, .cart-summary td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;  /* Centers the text horizontally */
+        vertical-align: middle;  /* Centers the text vertically */
+    }
+    .cart-summary th {
+        background-color: #f8f8f8;
+    }
+        .cart-summary .total-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+        }
+        .checkout-form h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .checkout-form textarea, .checkout-form input[type="radio"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .checkout-form input[type="radio"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        .payment-methods label {
+            margin-right: 20px;
+        }
+        .checkout-form button {
+            background-color: #2a8b76;
+            color: white;
+            font-size: 18px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        .checkout-form button:hover {
+            background-color: #238f64;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='images/rice_yield.jpg') }}" alt="Logo" class="logo-image">
+            <h1 class="store-name">Praveen Store</h1>
+        </div>
+        <div class="header-right">
+            <div class="cart-container" id="cartContainer" onclick="window.location.href='{{ url_for('view_cart') }}'">
+                <i class="fas fa-shopping-cart cart-icon"></i>
+                <span class="cart-count {{ 'zero' if cart_count == 0 else '' }}" id="cartCount">{{ cart_count }}</span>
+            </div>
+            <a href="{{ url_for('profile') }}" class="profile-avatar">
+                <img src="{{ url_for('static', filename='uploads/' + user['profile_picture']) }}" alt="Profile Picture">
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="cart-summary">
+            <h3>Cart Summary</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                        <tr>
+                            <td>{{ item[1] }}</td>  <!-- name -->
+                            <td>{{ item[2] }}</td>  <!-- quantity -->
+                            <td>${{ item[3] }}</td>  <!-- price -->
+                            <td>${{ item[2] * item[3] }}</td>  <!-- total price -->
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p class="total-price">Total Price: ${{ total_price }}</p>
+        </div>
+
+        <form class="checkout-form" method="POST">
+            <h3>Payment Method</h3>
+            <div class="payment-methods">
+                <label>
+                    <input type="radio" name="payment_method" value="COD" checked> Cash on Delivery (COD)
+                </label>
+                <label>
+                    <input type="radio" name="payment_method" value="UPI"> UPI
+                </label>
+                <label>
+                    <input type="radio" name="payment_method" value="Card"> Card Payment
+                </label>
+            </div>
+
+            <h3>Shipping Address</h3>
+            <textarea name="shipping_address" placeholder="Enter your shipping address" rows="5" required></textarea>
+
+            <button type="submit">Place Order</button>
+        </form>
+    </div>
+</body>
+</html>
