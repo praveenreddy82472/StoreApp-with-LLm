@@ -1,0 +1,48 @@
+Name: milk
+Category: food
+Price: 3.99
+Description: Milk is a white, nutritious liquid produced by female mammals to feed their young. It is consumed in various forms, including fresh, pasteurized, or fermented (like yogurt and cheese). Milk is widely consumed around the world, with cow's milk being the most common, though milk from goats, sheep, and plant-based alternatives (such as almond, soy, and oat milk) are also popular.
+Nutritional Info: calories = 150 kcal, fat = 8 g, saturated fat = 5 g, protein = 8 g, carbohydrates = 12 g, sugars (lactose) = 12 g, calcium = 276 mg, vitamin D = 2.4 mcg, vitamin B12 = 1.2 mcg, potassium = 322 mg, phosphorus = 205 mg
+Image URL: s3://praveen-store-mini-appli/food/milk.jpg
+Name: chilli Powder
+Category: food
+Price: 2.99
+Description: Chilli powder is a finely ground spice made from dried chili peppers, often blended with other spices such as cumin, garlic powder, or oregano. It is known for its vibrant red color and its ability to add heat, flavor, and aroma to a wide variety of dishes. Chilli powder is a staple in cuisines worldwide, especially in Indian, Mexican, and Southeast Asian cooking, where it enhances curries, stews, marinades, and sauces.
+Nutritional Info: calories = 23 kcal, fat = 1 g, saturated fat = 0.2 g, protein = 1 g, carbohydrates = 4 g, dietary fiber = 2 g, sugars = 0.5 g, vitamin A = 2700 IU, vitamin C = 1.5 mg, calcium = 9 mg, iron = 0.8 mg
+Image URL: s3://praveen-store-mini-appli/food/chilli.jpg
+Name: oil
+Category: food
+Price: 15.99
+Description: Oil is a liquid fat used in cooking, frying, and baking. Derived from plants (like olive, coconut, or sunflower) or animals, it enhances flavors and textures in dishes. Rich in healthy fats, oils are essential for both taste and nutrition, offering versatility in every kitchen.
+Nutritional Info: calories = 120 kcal, fat = 14 g, saturated fat = 1.2 g, monounsaturated fat = 3.5 g, polyunsaturated fat = 9 g, trans fat = 0 g, cholesterol = 0 mg, sodium = 0 mg, carbohydrates = 0 g, protein = 0 g, vitamin E = 5.6 mg (28% of daily value).
+Image URL: s3://praveen-store-mini-appli/food/oil.jpg
+Name: rice
+Category: food
+Price: 22.0
+Description: Rice is a staple grain consumed globally, known for its versatility and ability to complement various cuisines. It is available in many varieties, such as white, brown, basmati, jasmine, and wild rice. Easy to cook and mild in flavor, rice serves as a base for dishes like stir-fries, curries, pilafs, and desserts. While white rice is polished for a smooth texture, brown rice retains its bran, making it a more nutrient-dense option.
+Nutritional Info: calories = 205 kcal, fat = 0.4 g, saturated fat = 0.1 g, protein = 4.3 g, carbohydrates = 45 g, dietary fiber = 0.6 g, sugars = 0 g, sodium = 1 mg, calcium = 16 mg, iron = 1.9 mg.
+Image URL: s3://praveen-store-mini-appli/food/rice.jpg
+Name: sugar
+Category: food
+Price: 5.99
+Description: Sugar is a sweet crystalline substance derived mainly from sugarcane or sugar beet. It is widely used as a sweetener in beverages, baked goods, and desserts. Sugar adds flavor, balances acidity, and enhances the texture of food. Available in forms like granulated, powdered, and brown sugar, it is an essential ingredient in both household and commercial kitchens.
+Nutritional Info: calories = 16 kcal, fat = 0 g, saturated fat = 0 g, protein = 0 g, carbohydrates = 4 g, sugars = 4 g, fiber = 0 g, sodium = 0 mg, cholesterol = 0 mg.
+Image URL: s3://praveen-store-mini-appli/food/sugarjpg.jpg
+Name: Turmeric
+Category: food
+Price: 1.99
+Description: Turmeric is a golden-yellow spice made from the dried and ground root of the Curcuma longa plant. Known for its warm, earthy flavor and slightly bitter taste, turmeric is a key ingredient in curries, soups, and teas. It is also valued for its potential health benefits, attributed to its active compound, curcumin, which has anti-inflammatory and antioxidant properties.
+Nutritional Info: calories = 29 kcal, fat = 0.9 g, saturated fat = 0.3 g, protein = 0.9 g, carbohydrates = 6.3 g, dietary fiber = 2.1 g, sugars = 0.3 g, sodium = 3 mg, calcium = 15 mg, iron = 5.2 mg.
+Image URL: s3://praveen-store-mini-appli/food/Turmeric.jpg
+Name: soap
+Category: utilites
+Price: 3.99
+Description: Soap is a cleansing agent made from natural oils or fats combined with an alkaline substance, like lye. It effectively removes dirt, grease, and bacteria from the skin and surfaces. Available in various forms such as bars, liquids, and powders, soap comes in a range of fragrances, colors, and formulations tailored for specific uses like moisturizing, antibacterial protection, or sensitive skin care.
+Nutritional Info: cleansing = Removes dirt, sweat, and oils, keeping the skin clean and fresh, hydration = Moisturizing soaps help maintain skin moisture and prevent dryness, protection = Antibacterial soaps reduce the risk of skin infections and irritations, skin health = Specialized soaps help manage acne, eczema, or sensitive skin.
+Image URL: s3://praveen-store-mini-appli/grocery/shampo.jpg
+Name: shampoo
+Category: utilties
+Price: 6.99
+Description: Organic shampoo is made from natural, plant-based ingredients free from synthetic chemicals, parabens, and sulfates. It is designed to cleanse the hair and scalp gently while maintaining the natural oils, offering a healthier alternative to conventional shampoos. Organic shampoos are enriched with herbal extracts, essential oils, and other organic compounds that nourish the hair, promote growth, and improve hair health without harmful additives
+Nutritional Info: gentle cleansing = Cleanses the hair without stripping natural oils, preserving moisture and shine, hair nourishment = Organic ingredients like aloe vera, chamomile, and coconut oil nourish and hydrate the hair, scalp health = Helps maintain a balanced, healthy scalp by soothing irritation and reducing dryness or dandruff, promotes hair growth = Natural ingredients support hair follicles and encourage stronger, healthier hair growth, free from harmful chemicals = No parabens, sulfates, or synthetic fragrances, ideal for sensitive skin or those prone to allergic reactions.
+Image URL: s3://praveen-store-mini-appli/grocery/shampo.jpg
