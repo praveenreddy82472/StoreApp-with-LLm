@@ -1,7 +1,7 @@
 import json
 import csv
 import os
-from PraveenStore.utils.log import *
+from PraveenStore.utils.logger import logging
 
 class FileHandling:
     def __init__(self, data):
@@ -26,7 +26,7 @@ class FileHandling:
                     file.write(f"{key}: {value}\n")
             logging.info('Data saved into the .txt file')
         except Exception as e:
-            print(f"Error saving to txt: {e}")
+            logging.error(f"Error saving to txt: {e}")
 
     def save_to_json(self, filename):
         try:
@@ -42,12 +42,12 @@ class FileHandling:
 
             items.append(self.data)  # Append the new data
 
-            # Write the updated list of data back to the file
-            with open(f"{filename}.json", "a") as file:
+            # Write the updated list of data back to the file (overwrite the file)
+            with open(f"{filename}.json", "w") as file:
                 json.dump(items, file, indent=4)
             logging.info('Data saved into the json file')
         except Exception as e:
-            print(f"Error saving to json: {e}")
+            logging.error(f"Error saving to json: {e}")
 
     def save_to_csv(self, filename):
         try:
@@ -63,4 +63,4 @@ class FileHandling:
                 writer.writerow(self.data)
             logging.info('Data saved into the csv file')
         except Exception as e:
-            print(f"Error saving to csv: {e}")
+            logging.error(f"Error saving to csv: {e}")

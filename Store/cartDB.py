@@ -1,13 +1,16 @@
 import mysql.connector
+from PraveenStore.utils.logger import logging
 
 # Database configuration
 db_config = {'host': 'localhost', 'user': 'root', 'password': 'praveen987@', 'database': 'praveenstore_db'}
 
 def get_connection():
+    logging.info("---- CartDB Connection----")
     """Establish and return a new database connection."""
     return mysql.connector.connect(**db_config)
 
 def create_cart_table():
+    logging.info("Cartdb Table created")
     """Create the cart table in the database."""
     connection = get_connection()
     cursor = connection.cursor()
@@ -31,4 +34,4 @@ def create_cart_table():
     connection.close()
 
 create_cart_table()
-print("Cart table created successfully!")
+#print("Cart table created successfully!")

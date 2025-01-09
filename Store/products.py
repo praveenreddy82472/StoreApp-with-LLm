@@ -1,10 +1,13 @@
-from PraveenStore.utils.log import logging
-import json
-import csv
-from productsDB import PDBConnection
+from PraveenStore.utils.logger import logging
+from PraveenStore.Store.productsDB import PDBConnection
 from PraveenStore.utils.filehandling import FileHandling
-
-
+from dotenv import load_dotenv
+# Load environment variables from the .env file
+# Explicitly specify the path to the .env file
+dotenv_path = r"D:\PraveenPresCod\python\PraveenStore\constant\.env"
+# Load environment variables
+load_dotenv(dotenv_path=dotenv_path)
+import os
 class Product:
     def __init__(self, name, category, price, description, nutritional_info, image_url, db_params=None):
         self.name = name
@@ -13,9 +16,21 @@ class Product:
         self.description = description
         self.nutritional_info = nutritional_info
         self.image_url = image_url
+        # Accessing database credentials from environment variables
+        db_host = os.getenv('DB_HOST')
+        db_user = os.getenv('DB_USER')
+        db_password = os.getenv('DB_PASSWORD')
+        db_name = os.getenv('DB_NAME')
 
         # Create DB connection object
-        self.db = PDBConnection(db_params)
+        product_db_params = {
+            'host': db_host,
+            'user': db_user,
+            'password': db_password,
+            'database': db_name
+        }
+        # Create DB connection object
+        self.db = PDBConnection(product_db_params)
         self.db.connect()  # Establish the connection
         self.db.create_products_table()  # Ensure the table is created
         logging.info(f"Product object initialized: {self.name}, {self.category}, {self.price}")
@@ -58,19 +73,19 @@ class Product:
         file_handler = FileHandling(product_data)
 
         try:
-            file_handler.save_to_txt(r'D:\PraveenPresCod\python\PraveenStore\artifacts\products\Pdata')
+            file_handler.save_to_txt(r'D:\PraveenPresCod\python\PraveenStore\artifacts\products\products')
             logging.info(f"Product data saved to TXT file for product '{self.name}'.")
         except Exception as e:
             logging.error(f"Error saving product data to TXT file for product '{self.name}': {e}")
 
         try:
-            file_handler.save_to_json(fr'D:\PraveenPresCod\python\PraveenStore\artifacts\products\PData')
+            file_handler.save_to_json(r'D:\PraveenPresCod\python\PraveenStore\artifacts\products\products')
             logging.info(f"Product data saved to JSON file for product '{self.name}'.")
         except Exception as e:
             logging.error(f"Error saving product data to JSON file for product '{self.name}': {e}")
 
         try:
-            file_handler.save_to_csv(r'D:\PraveenPresCod\python\PraveenStore\artifacts\products\PData')
+            file_handler.save_to_json(r'D:\PraveenPresCod\python\PraveenStore\artifacts\products\products')
             logging.info(f"Product data saved to CSV file for product '{self.name}'.")
         except Exception as e:
             logging.error(f"Error saving product data to CSV file for product '{self.name}': {e}")

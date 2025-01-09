@@ -1,6 +1,7 @@
-from PraveenStore.utils.log import logging
+from PraveenStore.utils.logger import logging
 import os
 import json
+from PraveenStore.utils.logger import logging
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, redirect, flash, url_for
 

@@ -1,6 +1,7 @@
 import mysql.connector
 from mysql.connector import Error
-from PraveenStore.utils.log import logging
+from PraveenStore.utils.logger import logging
+
 
 
 class PDBConnection:
@@ -23,9 +24,9 @@ class PDBConnection:
             if self.connection.is_connected():
                 logging.info("Connection to the database successful.")
             else:
-                logging.error("Failed to connect to the database.")
+                logging.info("Failed to connect to the database.")
         except Error as e:
-            logging.error(f"Error connecting to MySQL: {e}")
+            logging.info(f"Error connecting to MySQL: {e}")
 
     def create_products_table(self):
         """Create the products table if it doesn't already exist."""
@@ -45,7 +46,7 @@ class PDBConnection:
             """)
             logging.info("Table `products` is ready.")
         except Error as e:
-            logging.error(f"Error creating table: {e}")
+            logging.info(f"Error creating table: {e}")
 
     def insert_product(self, name, category, price, description, nutritional_info, image_url):
         """Insert a new product into the products table."""
@@ -58,7 +59,7 @@ class PDBConnection:
             self.connection.commit()
             logging.info(f"Product '{name}' added successfully to the database.")
         except Error as e:
-            logging.error(f"Error inserting product '{name}': {e}")
+            logging.info(f"Error inserting product '{name}': {e}")
 
     def update_product(self, product_id, name, category, price, description, nutritional_info, image_url):
         """Update an existing product in the database."""
@@ -72,7 +73,7 @@ class PDBConnection:
             self.connection.commit()
             logging.info(f"Product with ID {product_id} updated successfully.")
         except Error as e:
-            logging.error(f"Error updating product with ID {product_id}: {e}")
+            logging.info(f"Error updating product with ID {product_id}: {e}")
 
     def delete_product(self, product_id):
         """Delete a product from the database."""
@@ -82,7 +83,7 @@ class PDBConnection:
             self.connection.commit()
             logging.info(f"Product with ID {product_id} deleted successfully.")
         except Error as e:
-            logging.error(f"Error deleting product with ID {product_id}: {e}")
+            logging.info(f"Error deleting product with ID {product_id}: {e}")
 
     def fetch_all_products(self):
         """Fetch all products from the products table."""

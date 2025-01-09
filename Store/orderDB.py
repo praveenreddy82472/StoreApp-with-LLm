@@ -1,5 +1,5 @@
 import mysql.connector
-
+from PraveenStore.utils.logger import logging
 # Database configuration
 db_config = {
     'host': 'localhost',
@@ -77,8 +77,8 @@ def get_user_by_id(user_id):
 
 
 create_orders_table()
-print("Orders table created successfully!")
+logging.info("Orders table created successfully!")
 # Call the function to create the order_items table
 create_order_items_table()
-print("Order items table created successfully!")
+logging.info("Order items table created successfully!")
 

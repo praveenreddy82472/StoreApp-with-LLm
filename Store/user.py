@@ -1,12 +1,19 @@
-from db import DBConnection
-from PraveenStore.utils.filehandling import FileHandling  # Import your FileHandling class
+from PraveenStore.Store.db import DBConnection
+from PraveenStore.utils.filehandling import FileHandling
 from PraveenStore.utils.exception import PraveenStoreException
 import sys
-from PraveenStore.utils.log import *
-from products import *
-from productsDB import PDBConnection
-from db import *
+from PraveenStore.utils.logger import logging
+from PraveenStore.Store.products import *
+from PraveenStore.Store.productsDB import PDBConnection
+from PraveenStore.Store.db import *
 import json
+from dotenv import load_dotenv
+# Load environment variables from the .env file
+# Explicitly specify the path to the .env file
+dotenv_path = r"D:\PraveenPresCod\python\PraveenStore\constant\.env"
+# Load environment variables
+load_dotenv(dotenv_path=dotenv_path)
+import os
 
 class Main:
     def __init__(self, name=None, dob=None, email=None, pwd=None, db_params=None):
@@ -15,9 +22,29 @@ class Main:
         self.email = email
         self.pwd = pwd
         self.user_data_file = 'user_data.json'
+        # Accessing database credentials from environment variables
+        db_host = os.getenv('DB_HOST')
+        db_user = os.getenv('DB_USER')
+        db_password = os.getenv('DB_PASSWORD')
+        db_name = os.getenv('DB_NAME')
 
+        print(f"DB_HOST={db_host}, DB_USER={db_user}, DB_PASSWORD={db_password}, DB_NAME={db_name}")
+
+        # Create DB connection object
+        product_db_params = {
+            'host': db_host,
+            'user': db_user,
+            'password': db_password,
+            'database': db_name
+        }
+        user_db_params = {
+            'host': db_host,
+            'user': db_user,
+            'password': db_password,
+            'database': db_name
+        }
         # Single DB connection for both users and products
-        self.db = DBConnection(db_params)
+        self.db = DBConnection(user_db_params)
         self.db.connect()
 
         # Ensure tables are created
@@ -25,12 +52,12 @@ class Main:
 
 
         # Initialize the PDBConnection class
-        self.product_db = PDBConnection(db_params)
+        self.product_db = PDBConnection(product_db_params)
         self.product_db.connect()
         # Create the products table
         self.product_db.create_products_table()# Create product table if not exists
 
-        logging.info("Initialized Main class with one database connection")
+        logging.info("Main class of the user and Product")
 
     def register(self):
         """Register a new user."""
@@ -92,65 +119,31 @@ class Main:
 
         return name, category, price, description, nutritional_info,image_url
 
-    def save_product(self):
-        """Save product to the database and files."""
+    def save_user_to_files(self):
+        """Save Users to the files"""
+        user_data = {
+            "Name": self.name,
+            "DOB": self.dob,
+            "Email": self.email,
+            "Password": self.pwd
+        }
+
+        file_handler = FileHandling(user_data)
+
         try:
-            # Collect product details
-            name, category, price, description, nutritional_info, image_url = self.get_product_details()
-
-            # Insert product into database
-            self.product_db.insert_product(name, category, price, description, nutritional_info, image_url)
-
-            # Save product details to files
-            product_data = {
-                "Name": name,
-                "Category": category,
-                "Price": price,
-                "Description": description,
-                "Nutritional Info": nutritional_info,
-                "Image URL": image_url
-            }
-
-            file_handler = FileHandling(product_data)
-            file_handler.save_to_txt(r'D:\PraveenPresCod\python\PraveenStore\artifacts\products\products')
-            file_handler.save_to_json(r'D:\PraveenPresCod\python\PraveenStore\artifacts\products\product_data.json')
-            file_handler.save_to_csv(r'D:\PraveenPresCod\python\PraveenStore\artifacts\products\products')
-
-            print(f"Product '{name}' added successfully!")
-            logging.info(f"Product '{name}' added successfully!")
+            file_handler.save_to_txt(r'D:\PraveenPresCod\python\PraveenStore\artifacts\user\Userdata')
+            logging.info(f"Product data saved to TXT file for user '{self.name}'.")
         except Exception as e:
-            raise PraveenStoreException(e, sys)
+            logging.error(f"Error saving product data to TXT file for user '{self.name}': {e}")
 
-if __name__ == "__main__":
-    db_params = {
-        'host': 'localhost',
-        'user': 'root',
-        'password': 'praveen987@',
-        'database': 'praveenstore_db'
-    }
+        try:
+            file_handler.save_to_json(fr'D:\PraveenPresCod\python\PraveenStore\artifacts\user\UserData')
+            logging.info(f"Product data saved to JSON file for User '{self.name}'.")
+        except Exception as e:
+            logging.error(f"Error saving product data to JSON file for user '{self.name}': {e}")
 
-    user_choice = input("Do you want to (register/login/save_product): ").lower()
-
-    if user_choice == "register":
-        name = input("Enter your name: ")
-        dob = input("Enter your DOB (YYYY-MM-DD): ")
-        email = input("Enter your email: ")
-        password = input("Enter your password: ")
-
-        app = Main(name=name, dob=dob, email=email, pwd=password, db_params=db_params)
-        app.register()
-
-    elif user_choice == "login":
-        email = input("Enter your email: ")
-        password = input("Enter your password: ")
-
-        app = Main(email=email, pwd=password, db_params=db_params)
-
-        if app.login():
-            print("Login successful!")
-        else:
-            print("Login failed. Please try again.")
-
-    elif user_choice == "save_product":
-        app = Main(db_params=db_params)  # Initialize the app
-        app.save_product()  # Use the existing save_product method
+        try:
+            file_handler.save_to_csv(r'D:\PraveenPresCod\python\PraveenStore\artifacts\user\UserData')
+            logging.info(f"Product data saved to CSV file for user '{self.name}'.")
+        except Exception as e:
+            logging.error(f"Error saving product data to CSV file for user '{self.name}': {e}")

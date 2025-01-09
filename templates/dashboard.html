@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -206,6 +208,162 @@
             width: 60px;
             height: 60px;
         }
+        .alert-container {
+        margin-top: 20px;
+        padding: 10px;
+        text-align: center;
+    }
+
+    .alert {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+
+    /* Red color alert for error messages */
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        animation: flashAlert 1s linear infinite;
+    }
+
+    /* Flashing effect */
+    @keyframes flashAlert {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+
+    /* Adjust other alerts (info, success, etc.) */
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+    }
+         /* Floating Copilot Button */
+        #copilot-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Chat Window */
+        #chat-window {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 300px;
+            height: 400px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        /* Chat Header */
+        #chat-header {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+
+        /* Resize Options */
+        #resize-options {
+            display: flex;
+            gap: 5px;
+        }
+
+        .resize-btn {
+            background-color: transparent;
+            border: none;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Chat Content */
+        #chat-content {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            font-size: 14px;
+            background-color: #f9f9f9;
+        }
+
+        .message {
+            margin: 5px 0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background-color: #d1ffd7;
+            align-self: flex-end;
+        }
+
+        .bot-message {
+            background-color: #f1f1f1;
+            align-self: flex-start;
+        }
+
+        /* Chat Footer */
+        .chat-footer {
+            display: flex;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-top: 1px solid #ccc;
+        }
+
+        .chat-footer input {
+            flex: 1;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .chat-footer button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
 
     </style>
 </head>
@@ -223,6 +381,20 @@
         </a>
     </header>
 
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+
     <!-- Horizontal Navigation Bar -->
     <div class="navbar">
         <a href="{{ url_for('home') }}">Home</a>
@@ -234,6 +406,7 @@
     <div class="main-content">
         <h2>Welcome to Praveen Store</h2>
         <p>Your one-stop solution for agricultural products and services.</p>
+
 
         <!-- About Section -->
         <div class="about-section">
@@ -257,9 +430,173 @@
                 </div>
             </div>
         </div>
+        <!-- Floating Copilot Button -->
+            <button id="copilot-btn">🤖</button>
 
-
+            <!-- Chat Window -->
+            <div id="chat-window" class="chat-window">
+                <div id="chat-header" class="chat-header">
+                    <span>Chatbot - Organic Store</span>
+                    <div id="resize-options">
+                        <button id="minimize-btn" class="resize-btn">_</button>
+                        <button id="maximize-btn" class="resize-btn">⛶</button>
+                        <button id="close-btn" class="resize-btn">✖</button>
+                    </div>
+                </div>
+                <div id="chat-content" class="chat-content">
+                    <!-- Messages will appear here -->
+                </div>
+                <div class="chat-footer">
+                    <input type="text" id="user-input" placeholder="Ask me anything..." />
+                    <button id="submit-btn">Send</button>
+                </div>
+                <div id="resize-handle" class="resize-handle"></div> <!-- Handle to resize the window -->
+            </div>
     </div>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Open/Close chat window
+        document.getElementById('copilot-btn').addEventListener('click', function() {
+            const chatWindow = document.getElementById('chat-window');
+            chatWindow.style.display = chatWindow.style.display === 'none' ? 'flex' : 'none';
+        });
+
+        // Minimize the chat window
+        document.getElementById('minimize-btn').addEventListener('click', function() {
+            const chatWindow = document.getElementById('chat-window');
+            chatWindow.style.height = '50px'; // Minimized size
+            document.getElementById('chat-content').style.display = 'none'; // Hide messages
+            document.getElementById('chat-footer').style.display = 'none'; // Hide footer
+            document.getElementById('chat-header').style.fontSize = '12px'; // Smaller text for header
+        });
+
+
+    function handleMouseMove(e) {
+        if (isResizing) {
+            const chatWindow = document.getElementById('chat-window');
+            const newHeight = e.clientY - chatWindow.getBoundingClientRect().top;
+            chatWindow.style.height = newHeight + 'px'; // Set new height based on mouse movement
+        }
+    }
+
+        // Maximize the chat window
+        document.getElementById('maximize-btn').addEventListener('click', function() {
+            const chatWindow = document.getElementById('chat-window');
+            chatWindow.style.height = '400px'; // Reset to original size
+            document.getElementById('chat-content').style.display = 'block'; // Show messages
+            document.getElementById('chat-footer').style.display = 'flex'; // Show footer
+            document.getElementById('chat-header').style.fontSize = '16px'; // Reset header text size
+        });
+
+        // Get the chat window and resize elements
+    const chatWindow = document.getElementById('chat-window');
+    const resizeHandle = document.getElementById('resize-handle');
+    const minimizeBtn = document.getElementById('minimize-btn');
+    const maximizeBtn = document.getElementById('maximize-btn');
+    const closeBtn = document.getElementById('close-btn');
+
+    let isResizing = false;
+    let initialWidth = chatWindow.offsetWidth;
+    let initialHeight = chatWindow.offsetHeight;
+    let initialMouseX = 0;
+    let initialMouseY = 0;
+
+    // Function to handle resizing the chat window
+    function startResizing(e) {
+        isResizing = true;
+        initialMouseX = e.clientX;
+        initialMouseY = e.clientY;
+        document.addEventListener('mousemove', resize);
+        document.addEventListener('mouseup', stopResizing);
+    }
+
+    // Function to resize the window
+    function resize(e) {
+        if (isResizing) {
+            const widthDiff = e.clientX - initialMouseX;
+            const heightDiff = e.clientY - initialMouseY;
+            chatWindow.style.width = `${initialWidth + widthDiff}px`;
+            chatWindow.style.height = `${initialHeight + heightDiff}px`;
+        }
+    }
+
+    // Function to stop resizing
+    function stopResizing() {
+        if (isResizing) {
+            initialWidth = chatWindow.offsetWidth;
+            initialHeight = chatWindow.offsetHeight;
+            isResizing = false;
+            document.removeEventListener('mousemove', resize);
+            document.removeEventListener('mouseup', stopResizing);
+        }
+    }
+
+    // Attach resize functionality to the handle
+    resizeHandle.addEventListener('mousedown', startResizing);
+
+    // Minimize chat window
+    minimizeBtn.addEventListener('click', () => {
+        chatWindow.style.height = '50px';
+        chatWindow.style.width = '300px';
+    });
+
+    // Maximize chat window
+    maximizeBtn.addEventListener('click', () => {
+        chatWindow.style.height = '400px';
+        chatWindow.style.width = '300px';
+    });
+
+    // Close chat window
+    closeBtn.addEventListener('click', () => {
+        chatWindow.style.display = 'none';
+    });
+
+        resizeHandle.addEventListener('mousedown', (e) => {
+        isResizing = true;
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', () => {
+            isResizing = false;
+            document.removeEventListener('mousemove', handleMouseMove);
+        });
+    });
+
+        // Close chat window
+        document.getElementById('close-btn').addEventListener('click', function() {
+            const chatWindow = document.getElementById('chat-window');
+            chatWindow.style.display = 'none'; // Hide chat window
+        });
+
+        // Handle user input and show message
+            document.getElementById('submit-btn').addEventListener('click', function() {
+                const userInput = document.getElementById('user-input').value;
+                if (userInput.trim()) {
+                    const chatContent = document.getElementById('chat-content');
+                    const userMessage = document.createElement('div');
+                    userMessage.classList.add('message', 'user-message');
+                    userMessage.innerText = userInput;
+                    chatContent.appendChild(userMessage);
+
+                    // Send user input to Flask backend
+                    fetch('/chat', {
+                        method: 'POST',
+                        body: new URLSearchParams({ user_query: userInput })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const botMessage = document.createElement('div');
+                        botMessage.classList.add('message', 'bot-message');
+                        botMessage.innerText = data.response;
+                        chatContent.appendChild(botMessage);
+                    })
+                    .catch(error => console.error("Error:", error));
+
+                    document.getElementById('user-input').value = ''; // Clear input field
+                    chatContent.scrollTop = chatContent.scrollHeight; // Scroll to the bottom
+                }
+            });
+
+    </script>
 
 </body>
 </html>

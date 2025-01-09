@@ -244,6 +244,52 @@
         .toggle-buttons button:active {
             background-color: #388e3c;
         }
+        .alert-container {
+        margin-top: 20px;
+        padding: 10px;
+        text-align: center;
+    }
+
+    .alert {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+
+    /* Red color alert for error messages */
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        animation: flashAlert 1s linear infinite;
+    }
+
+    /* Flashing effect */
+    @keyframes flashAlert {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+
+    /* Adjust other alerts (info, success, etc.) */
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+    }
+
+
     </style>
 </head>
 <body>
@@ -262,6 +308,20 @@
             </a>
         </div>
     </header>
+    <!-- Flash Message Section -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="alert-container">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
 
     <div class="content">
         <div class="toggle-buttons">

@@ -42,15 +42,19 @@ main {
     width: 100%;
     max-width: 600px;
     margin: 20px auto;
-    text-align: center;
+    text-align: left;
+    padding: 0 15px;
 }
 
 .flash {
+    display: flex;
+    align-items: center;
     padding: 15px;
     margin-bottom: 15px;
     border-radius: 8px;
     font-size: 18px;
     font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .flash.success {
@@ -76,6 +80,18 @@ main {
     color: #856404; /* Dark yellow */
     border: 1px solid #ffeeba;
 }
+
+.flash-icon {
+    margin-right: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.flash-text {
+    flex-grow: 1;
+}
+
 
 /* Form container for login and register pages */
 .form-container {

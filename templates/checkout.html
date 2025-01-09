@@ -56,15 +56,18 @@
             position: relative;
             cursor: pointer;
         }
+
         .cart-icon {
             font-size: 30px;
             color: white;
             transition: transform 0.3s, color 0.3s;
         }
+
         .cart-icon:hover {
             color: #ffd700;
             transform: scale(1.1);
         }
+
         .cart-count {
             position: absolute;
             top: -5px;
@@ -83,11 +86,13 @@
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
             transition: opacity 0.3s, transform 0.3s;
         }
+
         .cart-count.zero {
             opacity: 0;
             transform: scale(0.5);
             pointer-events: none;
         }
+
         .container {
             max-width: 900px;
             margin: 30px auto;
@@ -176,7 +181,8 @@
         <div class="header-right">
             <div class="cart-container" id="cartContainer" onclick="window.location.href='{{ url_for('view_cart') }}'">
                 <i class="fas fa-shopping-cart cart-icon"></i>
-                <span class="cart-count {{ 'zero' if cart_count == 0 else '' }}" id="cartCount">{{ cart_count }}</span>
+                <span class="cart-count {{ cart_count if cart_count > 0 else '' }}" id="cartCount">{{ cart_count }}</span>
+                        {{ cart_count if cart_count > 0 else '' }}
             </div>
             <a href="{{ url_for('profile') }}" class="profile-avatar">
                 <img src="{{ url_for('static', filename='uploads/' + user['profile_picture']) }}" alt="Profile Picture">
@@ -230,5 +236,38 @@
             <button type="submit">Place Order</button>
         </form>
     </div>
+    <script>
+        // Add to cart with AJAX
+        document.querySelectorAll('.addToCartForm').forEach(form => {
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                var productId = this.getAttribute('data-product-id');
+                var formData = new FormData(this);
+
+                fetch('/add_to_cart/' + productId, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.cart_count !== undefined) {
+                        var cartCount = document.getElementById('cartCount');
+                        cartCount.textContent = data.cart_count;
+
+                        if (data.cart_count > 0) {
+                            cartCount.classList.remove('zero');
+                        } else {
+                            cartCount.classList.add('zero');
+                        }
+                    } else {
+                        console.error("Failed to update cart.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+            });
+        });
+    </script>
 </body>
 </html>

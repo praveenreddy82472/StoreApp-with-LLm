@@ -3,7 +3,7 @@ from mysql.connector import Error
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename  # For password hashing
 import os
-from PraveenStore.utils.log import logging
+from PraveenStore.utils.logger import logging
 
 
 class DBConnection:
@@ -15,6 +15,7 @@ class DBConnection:
         self.connection = None
 
     def connect(self):
+        logging.info("UserDB Connection")
         """Establish the connection to the database."""
         try:
             self.connection = mysql.connector.connect(
@@ -31,7 +32,7 @@ class DBConnection:
                 print("Failed to connect.")
         except Error as e:
             logging.error(f"Error connecting to MySQL: {e}")
-            print(f"Error connecting to MySQL: {e}")
+            #print(f"Error connecting to MySQL: {e}")
 
     def create_user_table(self):
         """Create the users table if it doesn't already exist."""
@@ -52,7 +53,7 @@ class DBConnection:
             logging.info("Table `users` is ready.")
             print("Table `users` is ready.")
         except Error as e:
-            logging.error(f"Error creating table: {e}")
+            logging.info(f"Error creating table: {e}")
             print(f"Error creating table: {e}")
 
     def insert_user(self, name, dob, email, password, profile_picture=None, role='customer'):
@@ -68,7 +69,7 @@ class DBConnection:
             logging.info(f"User '{name}' added successfully.")
             print(f"User '{name}' added successfully.")
         except Error as e:
-            logging.error(f"Error inserting user '{name}': {e}")
+            logging.info(f"Error inserting user '{name}': {e}")
             print(f"Error inserting user '{name}': {e}")
 
     def authenticate_user(self, email, password):
@@ -83,7 +84,7 @@ class DBConnection:
                 logging.info(f"User '{email}' authenticated successfully.")
                 return user  # Return the user details if authentication succeeds
             else:
-                logging.warning(f"Failed authentication attempt for user '{email}'.")
+                logging.info(f"Failed authentication attempt for user '{email}'.")
                 return None  # Return None if authentication fails
         except Error as e:
             logging.error(f"Error authenticating user '{email}': {e}")
@@ -100,7 +101,7 @@ class DBConnection:
             logging.info(f"Email check for '{email}': {exists}")
             return exists  # Return True if email exists, else False
         except Error as e:
-            logging.error(f"Error checking if email exists for '{email}': {e}")
+            logging.info(f"Error checking if email exists for '{email}': {e}")
             print(f"Error checking if email exists: {e}")
             return False
 
@@ -120,10 +121,10 @@ class DBConnection:
                 logging.info(f"User with ID {user_id} fetched successfully.")
                 return dict(zip(columns, user))  # Return a dictionary with column names as keys
             else:
-                logging.warning(f"No user found with ID {user_id}.")
+                logging.info(f"No user found with ID {user_id}.")
                 return None
         except Error as e:
-            logging.error(f"Error fetching user by ID {user_id}: {e}")
+            logging.info(f"Error fetching user by ID {user_id}: {e}")
             print(f"Error checking user by ID: {e}")
             return None
 
@@ -160,6 +161,6 @@ class DBConnection:
             print(f"User details for ID {user_id} updated successfully.")
             return True
         except Exception as e:
-            logging.error(f"Error updating user details for ID {user_id}: {e}")
+            logging.info(f"Error updating user details for ID {user_id}: {e}")
             print(f"Error updating user details: {e}")
             return False

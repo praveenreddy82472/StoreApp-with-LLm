@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Confirmation</title>
     <style>
-        /* styles.css */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f4f4f9;
@@ -55,10 +54,19 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            margin: 10px;
         }
 
         .btn:hover {
             background-color: #45a049;
+        }
+
+        .btn-secondary {
+            background-color: #ff6f00;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e65c00;
         }
     </style>
 </head>
@@ -66,7 +74,10 @@
     <div class="container">
         <h1>Thank you for your order!</h1>
         <p>Your order has been placed successfully.</p>
-        <p><a href="{{ url_for('products') }}">Continue Shopping</a></p>
+        <p>
+            <a href="{{ url_for('products') }}" class="btn">Continue Shopping</a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+        </p>
     </div>
 </body>
 </html>

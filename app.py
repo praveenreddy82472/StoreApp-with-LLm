@@ -1,23 +1,44 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory, jsonify
+from Store.products import Product
+from Store.user import Main
 from Store.db import DBConnection
 from Store.productsDB import PDBConnection
 from Store.cartDB import get_connection
-from Store.orderDB import get_connection,get_user_by_id
+from Store.orderDB import get_connection,get_user_by_id,create_orders_table,create_order_items_table
 from werkzeug.utils import secure_filename
 from Store.blog import save_to_json, get_all_posts, save_image
+from Store.gemini_integration import start_chat
 import datetime
 import os
 import boto3
 from Store.admin_utils import admin_only
+from utils.logger import logging
+import os
+from dotenv import load_dotenv
+
+# Explicitly specify the path to the .env file
+dotenv_path = r"D:\PraveenPresCod\python\PraveenStore\constant\.env"
+# Load environment variables
+load_dotenv(dotenv_path=dotenv_path)
+
+# Access the database credentials using the environment variables
+db_host = os.getenv('DB_HOST')
+db_user = os.getenv('DB_USER')
+db_password = os.getenv('DB_PASSWORD')
+db_name = os.getenv('DB_NAME')
 
 
-app = Flask(__name__)
+
+#from Store.products import *
+
+
+app = Flask(__name__, template_folder='templates')
 app.secret_key = 'your_secret_key_here'
 
 # Initialize database connections
-user_db_params = {'host': 'localhost', 'user': 'root', 'password': 'praveen987@', 'database': 'praveenstore_db'}
-product_db_params = {'host': 'localhost', 'user': 'root', 'password': 'praveen987@', 'database': 'praveenstore_db'}
-order_manage= {'host': 'localhost', 'user': 'root', 'password': 'praveen987@', 'database': 'praveenstore_db'}
+user_db_params = {'host': db_host, 'user': db_user, 'password': db_password, 'database': db_name}
+product_db_params = {'host': db_host, 'user': db_user, 'password': db_password, 'database': db_name}
+order_manage= {'host': db_host, 'user': db_user, 'password': db_password, 'database': db_name}
 
 user_db = DBConnection(user_db_params)
 user_db.connect()
@@ -36,21 +57,15 @@ app.config['PRODUCTS_FOLDER'] = PRODUCTS_FOLDER
 
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
-
-
 # Home page route
 @app.route('/')
 def home():
+    logging.info("---- Home Page -----")
     return render_template('home.html')
-
-
-from flask import request, redirect, url_for, flash, render_template
-import os
-
-
 # Assuming you have the `user_db` object (your DBConnection) set up
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    logging.info("----- Register Page ------")
     if request.method == 'POST':
         name = request.form['name']
         dob = request.form['dob']
@@ -59,7 +74,8 @@ def register():
 
         # Check if email already exists
         if user_db.check_email_exists(email):
-            flash("Email already registered! Please log in.", "error")
+            logging.info("Email already registered! Please log in.")
+            flash("Email already registered! Please log in.")
             return redirect(url_for('login'))
 
         # Handle profile picture upload if provided
@@ -74,8 +90,10 @@ def register():
 
         # Insert the user into the database with the profile picture path (or None if no picture)
         user_db.insert_user(name, dob, email, pwd, profile_picture)
-
-        flash("Registration successful! Please log in.", "success")
+        m = Main(name, dob, email, pwd)
+        m.save_user_to_files()
+        logging.info("Registration successful! Please log in.")
+        flash("Registration successful! Please log in.")
         return redirect(url_for('login'))
 
     return render_template('register.html')
@@ -84,12 +102,14 @@ def register():
 # Login route
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    logging.info("----- Login Page ------")
     if request.method == 'POST':
         email = request.form['email']
         pwd = request.form['pwd']
 
         # Authenticate user
         user = user_db.authenticate_user(email, pwd)
+        print(user)
 
         if user:  # If authentication succeeds
             session['user_id'] = user['id']  # Save user ID in the session
@@ -97,7 +117,8 @@ def login():
             flash("Login successful!", "success")
             return redirect(url_for('dashboard'))  # Redirect to the dashboard
         else:  # Authentication failed
-            flash("Invalid email or password. Please try again.", "error")
+            logging.info("Invalid email or password. Please try again.")
+            flash("Invalid email or password. Please try again.")
             return render_template('login.html')
 
     return render_template('login.html')
@@ -105,7 +126,9 @@ def login():
 # Dashboard route
 @app.route('/dashboard')
 def dashboard():
+    logging.info("------- Dashboard Page --------")
     if not session.get('user_id'):  # Ensure user is logged in
+        logging.info("Please log in to access the dashboard.")
         flash("Please log in to access the dashboard.", "error")
         return redirect(url_for('login'))
 
@@ -134,12 +157,15 @@ def uploaded_file(filename):
 # Profile Picture Update Route
 @app.route('/update_profile_picture', methods=['POST'])
 def update_profile_picture():
+    logging.info("------ Update_profile_picture --------")
     if 'profile_picture' not in request.files:
+        logging.info("No file part")
         flash("No file part", "error")
         return redirect(url_for('profile'))
 
     file = request.files['profile_picture']
     if file.filename == '':
+        logging.info("No selected file")
         flash("No selected file", "error")
         return redirect(url_for('profile'))
 
@@ -153,14 +179,16 @@ def update_profile_picture():
 
         # Update the user's profile picture in the database
         user_db.update_profile_picture(user_id, filename)
-
+        logging.info("Profile picture updated successfully!")
         flash("Profile picture updated successfully!", "success")
         return redirect(url_for('profile'))
 
 
 @app.route('/profile')
 def profile():
+    logging.info('------ Profile Page ---------')
     if not session.get('user_id'):
+        logging.info("Please log in to view your profile.")
         flash("Please log in to view your profile.", "error")
         return redirect(url_for('login'))
 
@@ -184,7 +212,7 @@ def profile():
     cursor.close()
     connection.close()
     # Debugging: Print the user data to check
-    print(user)  # This should print the dictionary with user details
+    #print(user)  # This should print the dictionary with user details
 
     return render_template('profile.html', user=user,orders=orders)
 
@@ -192,7 +220,9 @@ def profile():
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 def edit_profile():
+    logging.info("------- Edit_Profile Section --------")
     if not session.get('user_id'):  # Ensure user is logged in
+        logging.info("Please log in to edit your profile.")
         flash("Please log in to edit your profile.", "error")
         return redirect(url_for('login'))
 
@@ -226,7 +256,7 @@ def edit_profile():
 
         # Update the user details, including profile picture if provided
         user_db.update_user_details(session['user_id'], name, dob, email, profile_picture)
-
+        logging.info("Profile updated successfully!")
         flash("Profile updated successfully!", "success")
         return redirect(url_for('profile'))
 
@@ -237,7 +267,9 @@ def edit_profile():
 # Products route
 @app.route('/products', methods=['GET', 'POST'])
 def products():
+    logging.info("----- Products Section -------")
     if not session.get('user_id'):  # Ensure user is logged in
+        logging.info("Please log in to view products.")
         flash("Please log in to view products.", "error")
         return redirect(url_for('login'))
 
@@ -246,7 +278,6 @@ def products():
 
     # Fetch products from the product database
     products = product_db.fetch_all_products()
-
     # Check if user is an admin, and allow access to the "Add Product" form
     is_admin = user['role'] == 'admin'
 
@@ -259,13 +290,16 @@ def products():
 # Route for adding a product
 @app.route('/add_product', methods=['GET', 'POST'])
 def add_product():
+    logging.info("------- Add Products Section --------")
     if not session.get('user_id'):  # Ensure the user is logged in
+        logging.info("Please log in to add a product.")
         flash("Please log in to add a product.", "error")
         return redirect(url_for('login'))  # Redirect to login page
 
     # Fetch the logged-in user
     user = user_db.get_user_by_id(session['user_id'])
     if user['role'] != 'admin':  # Ensure that only an admin can add products
+        logging.info("Access denied! You must be an admin to add a product.")
         flash("Access denied! You must be an admin to add a product.", "error")
         return redirect(url_for('products'))  # Redirect to products page if not admin
 
@@ -280,6 +314,7 @@ def add_product():
 
         # Validate the input fields
         if not name or not category or not description or not price or not nutritional_info:
+            logging.info("Please fill in all fields.")
             flash("Please fill in all fields.", "error")
             return render_template('add_product.html')
 
@@ -320,7 +355,9 @@ def add_product():
 
         # Insert the product into the database with the S3 URL
         product_db.insert_product(name, category, price, description, nutritional_info, s3_url)
-
+        p= Product(name, category, price, description, nutritional_info, s3_url)
+        p.save_to_files()
+        logging.info("Product added successfully!")
         flash("Product added successfully!", "success")
         return redirect(url_for('products'))  # Redirect to products page after successful addition
 
@@ -331,7 +368,9 @@ def add_product():
 
 @app.route('/blog', methods=['GET', 'POST'])
 def blog_page():
+    logging.info("-------Blog Section-------")
     if not session.get('user_id'):  # Ensure user is logged in
+        logging.info("Please log in to create a blog post.")
         flash("Please log in to create a blog post.", "error")
         return redirect(url_for('login'))
 
@@ -341,7 +380,12 @@ def blog_page():
 
     if request.method == 'POST':
         title = request.form['title']
-        content = request.form['content']
+        content = request.form.get('content')  # Use .get() to avoid KeyError
+
+        if not content:
+            logging.error("Content is missing!")
+            flash("Content is required.", "error")
+            return redirect('/blog')
         author = request.form['author'] or user['name']  # Use form author or default to logged-in user
         image = request.files['image']
 
@@ -359,6 +403,7 @@ def blog_page():
 
         # Save the post data (you can customize this to save to a database or JSON)
         save_to_json(author, data)
+        logging.info("Post Successfully Created!")
         flash("Post Successfully Created!")
         return redirect('/blog')
 
@@ -368,6 +413,7 @@ def blog_page():
 # Add to Cart
 @app.route('/add_to_cart/<int:product_id>', methods=['POST'])
 def add_to_cart(product_id):
+    logging.info("------Add_Products Section-------")
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
@@ -396,10 +442,11 @@ def add_to_cart(product_id):
         (user_id, product_id)
     )
     cart_item = cursor.fetchone()
-    print(cart_item)
+    #print(cart_item)
 
     if cart_item:
         # If the product is already in the cart, update the quantity
+        logging.info("If the product is already in the cart, update the quantity")
         new_quantity = cart_item[1] + quantity
         cursor.execute(
             "UPDATE cart SET quantity = %s WHERE cart_id = %s",
@@ -407,6 +454,7 @@ def add_to_cart(product_id):
         )
     else:
         # Otherwise, insert the new product into the cart
+        logging.info("Otherwise, insert the new product into the cart")
         cursor.execute(
             "INSERT INTO cart (user_id, product_id, quantity) VALUES (%s, %s, %s)",
             (user_id, product_id, quantity)
@@ -426,6 +474,7 @@ def add_to_cart(product_id):
 # View Cart
 @app.route('/cart')
 def view_cart():
+    logging.info("------View_Cart Section------")
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
@@ -443,7 +492,6 @@ def view_cart():
         WHERE c.user_id = %s
     """, (user_id,))
     cart_items = cursor.fetchall()
-
     total_price = sum(item['total'] for item in cart_items)
 
     cursor.close()
@@ -453,6 +501,7 @@ def view_cart():
 
 @app.route('/cart/increase_quantity/<int:product_id>', methods=['POST'])
 def increase_quantity(product_id):
+    logging.info("Increase the quantity of a product in the cart.")
     """Increase the quantity of a product in the cart."""
     if not session.get('user_id'):
         return jsonify({"error": "Unauthorized access"}), 401
@@ -484,6 +533,7 @@ def increase_quantity(product_id):
 
 @app.route('/cart/decrease_quantity/<int:product_id>', methods=['POST'])
 def decrease_quantity(product_id):
+    logging.info("Decrease the quantity of a product in the cart.")
     """Decrease the quantity of a product in the cart."""
     if not session.get('user_id'):
         return jsonify({"error": "Unauthorized access"}), 401
@@ -524,6 +574,7 @@ def decrease_quantity(product_id):
 # Remove from Cart
 @app.route('/remove_from_cart/<int:cart_id>', methods=['POST'])
 def remove_from_cart(cart_id):
+    logging.info("Remove From cart")
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
@@ -541,6 +592,7 @@ def remove_from_cart(cart_id):
 
 @app.route('/buy_now/<int:product_id>', methods=['POST'])
 def buy_now(product_id):
+    logging.info("------ BuyNow Section ------")
     if 'user_id' not in session:
         print("User is not logged in!")
         return redirect(url_for('login'))
@@ -558,9 +610,10 @@ def buy_now(product_id):
             ON DUPLICATE KEY UPDATE quantity = quantity + 1
         """, (session['user_id'], product_id, 1))
         conn.commit()
-
+        logging.info("CheckOut")
         return redirect(url_for('checkout'))
     else:
+        logging.info("Products NotFound")
         print("Product not found.")
         return redirect(url_for('error_page'))
 
@@ -569,6 +622,7 @@ def buy_now(product_id):
 
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
+    logging.info("-------CheckOut Section------")
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
@@ -610,10 +664,12 @@ def checkout():
         cart_items = cursor.fetchall()
         cursor.close()
         conn.close()
-        print(cart_items)
+        #print(cart_items)
 
     # Calculate the total price
     total_price = sum(int(item[2]) * float(item[3]) for item in cart_items)
+    # Calculate cart_count (number of items in the cart)
+    cart_count = sum(int(item[2]) for item in cart_items)
 
     if request.method == 'POST':
         # Handle form submission (shipping details, payment method)
@@ -623,6 +679,11 @@ def checkout():
         # Save the order to the database
         conn = get_connection()
         cursor = conn.cursor()
+        create_orders_table()
+        logging.info("Orders table created successfully!")
+        # Call the function to create the order_items table
+        create_order_items_table()
+        logging.info("Order items table created successfully!")
         cursor.execute("""
             INSERT INTO orders (user_id, total_price, shipping_address, payment_method) 
             VALUES (%s, %s, %s, %s)
@@ -645,15 +706,16 @@ def checkout():
 
         cursor.close()
         conn.close()
-
+        logging.info("Order_confirmation")
         # Redirect to the order confirmation page
         return redirect(url_for('order_confirmation'))
 
-    return render_template('checkout.html', cart_items=cart_items, total_price=total_price, user=user)
+    return render_template('checkout.html', cart_items=cart_items, total_price=total_price,cart_count=cart_count, user=user)
 
 
 @app.route('/orders')
 def view_orders():
+    logging.info("View orders")
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
@@ -675,9 +737,14 @@ def view_orders():
 
 # Route: Order Confirmation
 @app.route('/order_confirmation')
-@admin_only
 def order_confirmation():
-    return render_template('order_confirmation.html')
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user = user_db.get_user_by_id(session['user_id'])
+
+    return render_template('order_confirmation.html', user=user)
+
 
 @app.route('/update_order_status/<int:order_id>', methods=['GET', 'POST'])
 @admin_only
@@ -711,6 +778,29 @@ def update_order_status(order_id):
 
     # Pass both `order` and `order_id` to the template
     return render_template('update_order_status.html', order=order, order_id=order_id)
+
+
+@app.route('/')
+def index():
+    return render_template('dashboard.html')
+
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    user_query = request.form.get('user_query')
+
+    if not user_query:
+        return jsonify({"response": "Please provide a valid query."})
+
+    try:
+        # Process the user query and get the chatbot response
+        response = start_chat(user_query)
+    except Exception as e:
+        print(f"Error during chat processing: {e}")
+        response = "Sorry, an error occurred while processing your request."
+
+    return jsonify({"response": response})
+
 
 
 # Logout route
