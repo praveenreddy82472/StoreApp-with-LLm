@@ -117,13 +117,18 @@
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 1000px;
+            margin: 0 auto; /* Centers the container */
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             padding: 20px;
+
+            /* Add offset to shift it slightly to the right */
+            position: relative; /* Ensures positioning works */
+            left: 50px; /* Adjust this value to shift it further right */
         }
+
 
         .product-card {
             background-color: #fff;
@@ -288,6 +293,58 @@
         color: #856404;
         border: 1px solid #ffeeba;
     }
+    /* Hamburger Menu Icon */
+        .hamburger-menu {
+            font-size: 24px;
+            cursor: pointer;
+            padding: 10px;
+            margin: 10px;
+            position: fixed;
+            margin-top: -20px; /* Add space below the header */
+            margin-left: 10px;
+            z-index: 1000;
+            background-color: transparent;
+            border-radius: 4px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            top: 100px;
+            left: 0;
+            background-color: transparent;
+            color: white;
+            overflow-x: hidden;
+            transition: width 0.3s ease;
+            padding-top: 40px; /* Start content below header */
+            z-index: 999;
+        }
+
+        /* Sidebar content (buttons) */
+        .sidebar button {
+            display: block;
+            margin: 20px auto; /* Adjust margin to move buttons down */
+            padding: 12px 20px;
+            background-color: transparent;
+            color: orange; /* Orange text color */
+            border: none;
+            text-align: center;
+            cursor: pointer;
+            width: 90%;
+            font-size: 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s;
+            position: relative;
+            left: -40px; /* Move buttons slightly to the left */
+        }
+        /* Add spacing for the first button */
+        .sidebar button:first-of-type {
+            margin-top: 60px; /* Pushes the first button down */
+        }
+
+
 
 
     </style>
@@ -322,9 +379,12 @@
     {% endif %}
 {% endwith %}
 
-
     <div class="content">
-        <div class="toggle-buttons">
+        <div class="hamburger-menu" onclick="toggleMenu()">
+        &#9776; <!-- This is the hamburger icon -->
+        </div>
+
+        <div id="sidebar" class="sidebar">
             <button onclick="window.location.href='{{ url_for('dashboard') }}'">Back</button>
             <button onclick="window.location.href='{{ url_for('add_product') }}'">Add Products</button>
         </div>
@@ -385,6 +445,22 @@
                 });
             });
         });
+        // JavaScript to toggle the sidebar
+        const hamburgerMenu = document.querySelector('.hamburger-menu');
+        const sidebar = document.querySelector('.sidebar');
+
+        // Toggle the sidebar when the hamburger menu is clicked
+        hamburgerMenu.addEventListener('click', function() {
+            if (sidebar.style.width === "250px") {
+                sidebar.style.width = "0"; // Close the sidebar
+            } else {
+                sidebar.style.width = "250px"; // Open the sidebar
+            }
+        });
+
+
+
+
     </script>
 </body>
 </html>

@@ -1,6 +1,5 @@
-import mysql.connector
-from mysql.connector import Error
-from PraveenStore.utils.logger import logging
+from mysql.connector import connect,Error
+from utils.logger import logging
 
 
 
@@ -15,7 +14,7 @@ class PDBConnection:
     def connect(self):
         """Establish the connection to the database."""
         try:
-            self.connection = mysql.connector.connect(
+            self.connection = connect(
                 host=self.host,
                 user=self.user,
                 password=self.password,

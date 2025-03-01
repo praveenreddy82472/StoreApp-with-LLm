@@ -1,6 +1,6 @@
-from PraveenStore.utils.logger import logging
-from PraveenStore.Store.productsDB import PDBConnection
-from PraveenStore.utils.filehandling import FileHandling
+from utils.logger import logging
+from Store.productsDB import PDBConnection
+from utils.filehandling import FileHandling
 from dotenv import load_dotenv
 # Load environment variables from the .env file
 # Explicitly specify the path to the .env file

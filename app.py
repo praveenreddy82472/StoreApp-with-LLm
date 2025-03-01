@@ -32,8 +32,10 @@ db_name = os.getenv('DB_NAME')
 #from Store.products import *
 
 
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__, template_folder='templates', static_folder='static', static_url_path='/static/')
+
 app.secret_key = 'your_secret_key_here'
+app.config['DEBUG'] = True
 
 # Initialize database connections
 user_db_params = {'host': db_host, 'user': db_user, 'password': db_password, 'database': db_name}
@@ -107,8 +109,12 @@ def login():
         email = request.form['email']
         pwd = request.form['pwd']
 
+        # Debugging: Check what data is being sent
+        logging.info(f"Login request: email={email}, password={pwd}")
+
         # Authenticate user
         user = user_db.authenticate_user(email, pwd)
+        logging.info(f"Authentication result: {user}")
         print(user)
 
         if user:  # If authentication succeeds
@@ -812,4 +818,5 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,host='0.0.0.0', port=5000)
+    #app.run(debug=True)

@@ -1,7 +1,7 @@
 import json
 import csv
 import os
-from PraveenStore.utils.logger import logging
+from utils.logger import logging
 
 class FileHandling:
     def __init__(self, data):

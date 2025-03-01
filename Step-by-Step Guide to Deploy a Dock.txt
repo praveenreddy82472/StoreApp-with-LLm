@@ -1,0 +1,141 @@
+RUn the commd
+
+$ docker-compose up --build
+
+
+ Step-by-Step Guide to Deploy a Docker Image on AWS Elastic Beanstalk
+You will push your Docker image to AWS Elastic Container Registry (ECR) and deploy it using Elastic Beanstalk (EB).
+
+🛠 Prerequisites
+✅ AWS Account
+✅ AWS CLI installed (aws --version)
+✅ Elastic Beanstalk CLI installed (eb --version)
+✅ Docker installed (docker --version)
+✅ Your Docker image built locally (docker images)
+
+Step 1: Authenticate AWS CLI & Elastic Beanstalk CLI
+
+1️⃣ Login to AWS CLI
+aws configure
+Enter AWS Access Key, Secret Key, and Region (e.g., us-east-1).
+2️⃣ Initialize Elastic Beanstalk
+Run:
+eb init -p docker praveenstore-app --region your-region
+This creates an Elastic Beanstalk configuration for your app.
+
+
+
+Step 2: Push Docker Image to AWS Elastic Container Registry (ECR)
+
+
+1️⃣ Create an ECR repository
+aws ecr create-repository --repository-name praveenstore-app
+Copy the repository URI from the output (e.g., 123456789012.dkr.ecr.us-east-1.amazonaws.com/praveenstore-app).
+
+2️⃣ Authenticate Docker to ECR
+Replace your-region and your-account-id:
+aws ecr get-login-password --region your-region | docker login --username AWS --password-stdin your-account-id.dkr.ecr.your-region.amazonaws.com
+
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 381492082704.dkr.ecr.us-east-1.amazonaws.com
+
+3️⃣ Tag the Docker image
+docker tag praveenstore-app:latest your-account-id.dkr.ecr.your-region.amazonaws.com/praveenstore-app:latest
+
+docker tag praveenstore-app:latest 381492082704.dkr.ecr.us-east-1.amazonaws.com/praveenstore-app:latest
+
+
+4️⃣ Push the Docker image to ECR
+docker push your-account-id.dkr.ecr.your-region.amazonaws.com/praveenstore-app:latest
+
+docker push 381492082704.dkr.ecr.us-east-1.amazonaws.com/praveenstore-app:latest
+
+
+
+
+Step 3: Create Dockerrun.aws.json
+Elastic Beanstalk needs a Dockerrun.aws.json file to pull the Docker image.
+
+📌 Create a file named Dockerrun.aws.json in your project folder:
+
+json
+{
+    "AWSEBDockerrunVersion": "2",
+    "containerDefinitions": [
+      {
+        "name": "app",
+        "image": "381492082704.dkr.ecr.us-east-1.amazonaws.com/praveenstore-app:latest",
+        "memory": 500,
+        "essential": true,
+        "portMappings": [
+          {
+            "containerPort": 5000,
+            "hostPort": 5000
+          }
+        ],
+        "environment": [
+          {
+            "name": "DB_HOST",
+            "value": "host.docker.internal"
+          },
+          {
+            "name": "DB_USER",
+            "value": "root"
+          },
+          {
+            "name": "DB_PASSWORD",
+            "value": "praveen987@"
+          },
+          {
+            "name": "DB_NAME",
+            "value": "praveenstore_db"
+          },
+          {
+            "name": "GOOGLE_API_KEY",
+            "value": "AIzaSyDPvYNiln3Jq3qxT20m_lc0tJH4Z4DG-78"
+          }
+        ]
+      }
+    ]
+  }
+  
+
+
+Note:
+		-- cat -A Dockerrun.aws.json
+
+		Your Dockerrun.aws.json file has Windows-style line endings (^M$), which might be causing issues. You need to convert it to Unix format 		using the dos2unix command.
+		-- dos2unix Dockerrun.aws.json
+
+		if still getting error 
+		-- dos2unix Dockerfile
+
+		
+
+Step 5: Deploy to Elastic Beanstalk
+Initialize Elastic Beanstalk
+Run the following command to set up Elastic Beanstalk for your application:
+
+---- eb init -p docker praveenstore-app --region us-east-1
+Replace praveenstore-app with your application name.
+
+Create Elastic Beanstalk Environment
+Run the following command to create an environment:
+--- eb create praveenstore-env
+Deploy the Application
+Now, deploy your app using the following command:
+
+--- eb deploy
+Step 6: Monitor and Access Your App
+Check the deployment status:
+
+sh
+Copy
+Edit
+eb status
+Open the app in a browser:
+
+sh
+Copy
+Edit
+eb open
+This will launch your app’s URL in the browser, and you should be able to access your Flask application deployed on AWS Elastic Beanstalk.

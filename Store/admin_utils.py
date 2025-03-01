@@ -1,12 +1,27 @@
 # admin_utils.py
 from flask import session, flash, redirect, url_for
-from PraveenStore.utils .logger import logging
-from PraveenStore.Store.db import DBConnection
+from utils .logger import logging
+from Store.db import DBConnection
 
 from functools import wraps
+import os
+from dotenv import load_dotenv
+# Load environment variables from the .env file
+# Explicitly specify the path to the .env file
+dotenv_path = r"D:\PraveenPresCod\python\PraveenStore\constant\.env"
+# Load environment variables
+load_dotenv(dotenv_path=dotenv_path)
+db_host = os.getenv('DB_HOST')
+db_user = os.getenv('DB_USER')
+db_password = os.getenv('DB_PASSWORD')
+db_name = os.getenv('DB_NAME')
 
-
-user_db_params = {'host': 'localhost', 'user': 'root', 'password': 'praveen987@', 'database': 'praveenstore_db'}
+user_db_params = {
+            'host': db_host,
+            'user': db_user,
+            'password': db_password,
+            'database': db_name
+}
 user_db = DBConnection(user_db_params)
 user_db.connect()
 # Admin-only access decorator

@@ -1,11 +1,11 @@
-from PraveenStore.Store.db import DBConnection
-from PraveenStore.utils.filehandling import FileHandling
-from PraveenStore.utils.exception import PraveenStoreException
+from Store.db import DBConnection
+from utils.filehandling import FileHandling
+from utils.exception import PraveenStoreException
 import sys
-from PraveenStore.utils.logger import logging
-from PraveenStore.Store.products import *
-from PraveenStore.Store.productsDB import PDBConnection
-from PraveenStore.Store.db import *
+from utils.logger import logging
+from Store.products import *
+from Store.productsDB import PDBConnection
+from Store.db import *
 import json
 from dotenv import load_dotenv
 # Load environment variables from the .env file

@@ -1,3 +1,5 @@
+import sys
+
 import google.generativeai as genai
 import mysql.connector
 import os
@@ -28,25 +30,43 @@ def get_db_connection():
         database=db_name
     )
 
-def list_tables(conn):
+def list_tables():
     """Retrieve the names of all tables in the database."""
-    cursor = conn.cursor()
-    cursor.execute("SHOW TABLES")
-    tables = cursor.fetchall()
-    return [t[0] for t in tables]
+    conn = get_db_connection()  # Create the connection internally
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SHOW TABLES")
+        tables = cursor.fetchall()
+        logging.info(f"Tables: {tables}")
+        return [t[0] for t in tables]
+    except Exception as e:
+        logging.error(f"Error fetching tables: {e}")
+        raise
 
-def describe_table(conn, table_name):
-    """Look up the schema of a table in the database."""
-    cursor = conn.cursor()
-    cursor.execute(f"DESCRIBE {table_name};")
-    schema = cursor.fetchall()
-    return [(col[0], col[1]) for col in schema]
+def describe_table(table_name):
+    """Retrieve the names of all tables in the database."""
+    conn = get_db_connection()  # Create the connection internally
+    try:
+        cursor = conn.cursor()
+        cursor.execute(f"DESCRIBE {table_name}")
+        schema = cursor.fetchall()
+        return [(col[0], col[1]) for col in schema]
+    except Exception as e:
+        logging.error(f"Error describing table '{table_name}': {e}")
+        raise
 
-def execute_query(conn, sql):
-    """Execute a SELECT statement, returning the results."""
-    cursor = conn.cursor()
-    cursor.execute(sql)
-    return cursor.fetchall()
+def execute_query(sql):
+    """Retrieve the names of all tables in the database."""
+    conn = get_db_connection()  # Create the connection internally
+    try:
+        cursor = conn.cursor()
+        cursor.execute(sql)
+        results = cursor.fetchall()
+        logging.info(f"Query Results: {results}")
+        return results
+    except Exception as e:
+        logging.error(f"Error executing query '{sql}': {e}")
+        raise
 
 # Define the instruction for the LLM chatbot
 instruction = """
@@ -73,7 +93,8 @@ def start_chat(user_query):
             "function_declarations": [
                 {
                     "name": "list_tables",
-                    "description": "List all tables in the database"
+                    "description": "List all tables in the database",
+                    "function": list_tables,
                 },
                 {
                     "name": "describe_table",
@@ -84,7 +105,8 @@ def start_chat(user_query):
                             "table_name": {"type": "string", "description": "Name of the table to describe"}
                         },
                         "required": ["table_name"]
-                    }
+                    },
+                    "function": describe_table,  # Points to the Python function
                 },
                 {
                     "name": "execute_query",
@@ -95,7 +117,8 @@ def start_chat(user_query):
                             "sql": {"type": "string", "description": "The SQL query to execute"}
                         },
                         "required": ["sql"]
-                    }
+                    },
+                    "function": execute_query,  # Points to the Python function
                 }
             ]
         }

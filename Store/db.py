@@ -1,9 +1,8 @@
-import mysql.connector
-from mysql.connector import Error
+from mysql.connector import connect,Error
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename  # For password hashing
 import os
-from PraveenStore.utils.logger import logging
+from utils.logger import logging
 
 
 class DBConnection:
@@ -18,7 +17,7 @@ class DBConnection:
         logging.info("UserDB Connection")
         """Establish the connection to the database."""
         try:
-            self.connection = mysql.connector.connect(
+            self.connection = connect(
                 host=self.host,
                 user=self.user,
                 password=self.password,
@@ -75,7 +74,7 @@ class DBConnection:
     def authenticate_user(self, email, password):
         """Authenticate user login by checking email and password."""
         try:
-            cursor = self.connection.cursor(dictionary=True)
+            cursor = self.connection.cursor(dictionary=True)  # Use dictionary cursor
             cursor.execute("SELECT * FROM users WHERE email = %s;", (email,))
             user = cursor.fetchone()
 

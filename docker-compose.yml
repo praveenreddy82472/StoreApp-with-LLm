@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile  # Ensure Dockerfile is present in the current directory
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: host.docker.internal  # Connects to MySQL on the host machine
+      DB_USER: root
+      DB_PASSWORD: praveen987@
+      DB_NAME: praveenstore_db
+      GOOGLE_API_KEY: AIzaSyDPvYNiln3Jq3qxT20m_lc0tJH4Z4DG-78
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge

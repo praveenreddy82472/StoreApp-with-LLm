@@ -1,0 +1,39 @@
+{
+    "AWSEBDockerrunVersion": "2",
+    "containerDefinitions": [
+      {
+        "name": "app",
+        "image": "381492082704.dkr.ecr.us-east-1.amazonaws.com/praveenstore-app:latest",
+        "memory": 500,
+        "essential": true,
+        "portMappings": [
+          {
+            "containerPort": 5000,
+            "hostPort": 5000
+          }
+        ],
+        "environment": [
+          {
+            "name": "DB_HOST",
+            "value": "host.docker.internal"
+          },
+          {
+            "name": "DB_USER",
+            "value": "root"
+          },
+          {
+            "name": "DB_PASSWORD",
+            "value": "praveen987@"
+          },
+          {
+            "name": "DB_NAME",
+            "value": "praveenstore_db"
+          },
+          {
+            "name": "GOOGLE_API_KEY",
+            "value": "AIzaSyDPvYNiln3Jq3qxT20m_lc0tJH4Z4DG-78"
+          }
+        ]
+      }
+    ]
+  }
