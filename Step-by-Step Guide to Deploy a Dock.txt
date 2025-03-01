@@ -1,141 +1,104 @@
-RUn the commd
+That makes total sense! Using GitHub Actions for the entire deployment pipeline ensures that every code change is automatically built, pushed to Amazon ECR, and deployed to EC2—eliminating manual intervention.
 
-$ docker-compose up --build
+Here's the fully automated GitHub Actions workflow that:
+✅ Builds the Docker image
+✅ Pushes it to Amazon ECR
+✅ Deploys it to EC2
 
+📌 Step 1: Store AWS & App Secrets in GitHub
+Go to GitHub Repo → Settings → Secrets and Variables → Actions
+Click "New repository secret" and add:
 
- Step-by-Step Guide to Deploy a Docker Image on AWS Elastic Beanstalk
-You will push your Docker image to AWS Elastic Container Registry (ECR) and deploy it using Elastic Beanstalk (EB).
+Secret Name	Value (Example)
+REDACTED	Your AWS Access Key ID  : AKIAVRUVTHAIH4B6TUOH
+REDACTED	Your AWS Secret Access Key : abnGsCa410Bx6G3rlGwuZWyvSKHDCxF+Xa2s6LH/
+AWS_REGION	us-east-1 (or your region) : us-east-1
+ECR_REPOSITORY	your-repo-name (e.g., my-app): storeapp
+EC2_USER	ec2-user (or ubuntu for Ubuntu AMI) : ubuntu
+EC2_HOST	your-ec2-public-ip : 3.88.28.229
+EC2_SSH_KEY	Paste the private SSH key of your EC2 instance :
+📌 Step 2: GitHub Actions Workflow
+Create .github/workflows/deploy.yml in your repo:
 
-🛠 Prerequisites
-✅ AWS Account
-✅ AWS CLI installed (aws --version)
-✅ Elastic Beanstalk CLI installed (eb --version)
-✅ Docker installed (docker --version)
-✅ Your Docker image built locally (docker images)
+name: Deploy to AWS EC2 via ECR
 
-Step 1: Authenticate AWS CLI & Elastic Beanstalk CLI
+on:
+  push:
+    branches:
+      - main  # Runs on every push to main branch
 
-1️⃣ Login to AWS CLI
-aws configure
-Enter AWS Access Key, Secret Key, and Region (e.g., us-east-1).
-2️⃣ Initialize Elastic Beanstalk
-Run:
-eb init -p docker praveenstore-app --region your-region
-This creates an Elastic Beanstalk configuration for your app.
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # GitHub-hosted runner
 
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.REDACTED }}
+          aws-secret-access-key: ${{ secrets.REDACTED }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-Step 2: Push Docker Image to AWS Elastic Container Registry (ECR)
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
+          docker login --username AWS --password-stdin \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
 
+      - name: Build and Push Docker Image
+        env:
+          IMAGE_TAG: latest
+        run: |
+          docker build -t ${{ secrets.ECR_REPOSITORY }} .
+          docker tag ${{ secrets.ECR_REPOSITORY }}:latest \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
+          
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
 
-1️⃣ Create an ECR repository
-aws ecr create-repository --repository-name praveenstore-app
-Copy the repository URI from the output (e.g., 123456789012.dkr.ecr.us-east-1.amazonaws.com/praveenstore-app).
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
+            docker login --username AWS --password-stdin \
+            ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+            
+            docker stop my-app || true
+            docker rm my-app || true
+            docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
+            
+            docker run -d -p 80:5000 \
+              -e DB_HOST=${{ secrets.DB_HOST }} \
+              -e DB_USER=${{ secrets.DB_USER }} \
+              -e DB_PASS=${{ secrets.DB_PASS }} \
+              -e GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
+              --name my-app \
+              ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
+📌 Step 3: Deploy the App
+1️⃣ Push your code to GitHub
 
-2️⃣ Authenticate Docker to ECR
-Replace your-region and your-account-id:
-aws ecr get-login-password --region your-region | docker login --username AWS --password-stdin your-account-id.dkr.ecr.your-region.amazonaws.com
+git add .
+git commit -m "Automated deployment setup"
+git push origin main
+2️⃣ GitHub Actions will automatically: ✅ Build the Docker image
+✅ Push it to Amazon ECR
+✅ Deploy it on EC2
 
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 381492082704.dkr.ecr.us-east-1.amazonaws.com
+3️⃣ Check if your app is running
 
-3️⃣ Tag the Docker image
-docker tag praveenstore-app:latest your-account-id.dkr.ecr.your-region.amazonaws.com/praveenstore-app:latest
+ssh -i my-key.pem ec2-user@your-ec2-public-ip
+docker ps
+4️⃣ Test your app
 
-docker tag praveenstore-app:latest 381492082704.dkr.ecr.us-east-1.amazonaws.com/praveenstore-app:latest
-
-
-4️⃣ Push the Docker image to ECR
-docker push your-account-id.dkr.ecr.your-region.amazonaws.com/praveenstore-app:latest
-
-docker push 381492082704.dkr.ecr.us-east-1.amazonaws.com/praveenstore-app:latest
-
-
-
-
-Step 3: Create Dockerrun.aws.json
-Elastic Beanstalk needs a Dockerrun.aws.json file to pull the Docker image.
-
-📌 Create a file named Dockerrun.aws.json in your project folder:
-
-json
-{
-    "AWSEBDockerrunVersion": "2",
-    "containerDefinitions": [
-      {
-        "name": "app",
-        "image": "381492082704.dkr.ecr.us-east-1.amazonaws.com/praveenstore-app:latest",
-        "memory": 500,
-        "essential": true,
-        "portMappings": [
-          {
-            "containerPort": 5000,
-            "hostPort": 5000
-          }
-        ],
-        "environment": [
-          {
-            "name": "DB_HOST",
-            "value": "host.docker.internal"
-          },
-          {
-            "name": "DB_USER",
-            "value": "root"
-          },
-          {
-            "name": "DB_PASSWORD",
-            "value": "praveen987@"
-          },
-          {
-            "name": "DB_NAME",
-            "value": "praveenstore_db"
-          },
-          {
-            "name": "GOOGLE_API_KEY",
-            "value": "AIzaSyDPvYNiln3Jq3qxT20m_lc0tJH4Z4DG-78"
-          }
-        ]
-      }
-    ]
-  }
-  
-
-
-Note:
-		-- cat -A Dockerrun.aws.json
-
-		Your Dockerrun.aws.json file has Windows-style line endings (^M$), which might be causing issues. You need to convert it to Unix format 		using the dos2unix command.
-		-- dos2unix Dockerrun.aws.json
-
-		if still getting error 
-		-- dos2unix Dockerfile
-
-		
-
-Step 5: Deploy to Elastic Beanstalk
-Initialize Elastic Beanstalk
-Run the following command to set up Elastic Beanstalk for your application:
-
----- eb init -p docker praveenstore-app --region us-east-1
-Replace praveenstore-app with your application name.
-
-Create Elastic Beanstalk Environment
-Run the following command to create an environment:
---- eb create praveenstore-env
-Deploy the Application
-Now, deploy your app using the following command:
-
---- eb deploy
-Step 6: Monitor and Access Your App
-Check the deployment status:
-
-sh
-Copy
-Edit
-eb status
-Open the app in a browser:
-
-sh
-Copy
-Edit
-eb open
-This will launch your app’s URL in the browser, and you should be able to access your Flask application deployed on AWS Elastic Beanstalk.
+curl http://your-ec2-public-ip
+🎯 Key Benefits
+✅ Completely Automated – Every commit triggers a new deployment.
+✅ No Manual Docker Runs – GitHub Actions handles everything.
+✅ Secure Secrets Handling – Stored safely in GitHub Actions.
+✅ Rollback Possible – You can redeploy any previous version.
