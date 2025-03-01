@@ -70,15 +70,14 @@ jobs:
         
         - name: Pull latest images
           run: |
-          docker pull ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+            docker pull ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
 
         - name: Stop and remove storeapp container if running
           run: |
-
-          docker ps -q --filter "name=storeapp" | grep -q . && docker stop storeapp && docker rm -fv storeapp || echo "No container named storeapp is running"
+            docker ps -q --filter "name=storeapp" | grep -q . && docker stop storeapp && docker rm -fv storeapp || echo "No container named storeapp is running"
 
 
 
         - name: Run Docker Image to serve users
           run: |
-          docker run -d -p 80:8080 --name=storeapp -e DB_HOST=${{ secrets.DB_HOST }} -e DB_USER=${{ secrets.DB_USER }} -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} -e GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} -e 'REDACTED=${{ secrets.REDACTED }}' -e 'REDACTED=${{ secrets.REDACTED }}' -e 'AWS_REGION=${{ secrets.AWS_REGION }}'  ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+            docker run -d -p 80:8080 --name=storeapp -e DB_HOST=${{ secrets.DB_HOST }} -e DB_USER=${{ secrets.DB_USER }} -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} -e GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} -e 'REDACTED=${{ secrets.REDACTED }}' -e 'REDACTED=${{ secrets.REDACTED }}' -e 'AWS_REGION=${{ secrets.AWS_REGION }}'  ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
