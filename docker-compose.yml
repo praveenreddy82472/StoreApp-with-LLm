@@ -7,11 +7,11 @@ services:
     ports:
       - "5000:5000"
     environment:
-      DB_HOST: host.docker.internal  # Connects to MySQL on the host machine
-      DB_USER: root
-      DB_PASSWORD: praveen987@
-      DB_NAME: praveenstore_db
-      GOOGLE_API_KEY: AIzaSyDPvYNiln3Jq3qxT20m_lc0tJH4Z4DG-78
+      DB_HOST: ${DB_HOST}  # Use value from .env
+      DB_USER: ${DB_USER}  # Use value from .env
+      DB_PASSWORD: ${DB_PASSWORD}  # Use value from .env
+      DB_NAME: ${DB_NAME}  # Use value from .env
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}  # Use value from .env
     networks:
       - app_network
 
