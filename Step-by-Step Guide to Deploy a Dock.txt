@@ -10,12 +10,12 @@ Go to GitHub Repo → Settings → Secrets and Variables → Actions
 Click "New repository secret" and add:
 
 Secret Name	Value (Example)
-REDACTED	Your AWS Access Key ID  : AKIAVRUVTHAIH4B6TUOH
-REDACTED	Your AWS Secret Access Key : abnGsCa410Bx6G3rlGwuZWyvSKHDCxF+Xa2s6LH/
-AWS_REGION	us-east-1 (or your region) : us-east-1
-ECR_REPOSITORY	your-repo-name (e.g., my-app): storeapp
-EC2_USER	ec2-user (or ubuntu for Ubuntu AMI) : ubuntu
-EC2_HOST	your-ec2-public-ip : 3.88.28.229
+REDACTED	Your AWS Access Key ID 
+REDACTED	Your AWS Secret Access Key 
+AWS_REGION	us-east-1 (or your region) 
+ECR_REPOSITORY	your-repo-name (e.g., my-app): 
+EC2_USER	ec2-user (or ubuntu for Ubuntu AMI) : 
+EC2_HOST	your-ec2-public-ip : 
 EC2_SSH_KEY	Paste the private SSH key of your EC2 instance :
 📌 Step 2: GitHub Actions Workflow
 Create .github/workflows/deploy.yml in your repo:
