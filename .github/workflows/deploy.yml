@@ -11,9 +11,8 @@ permissions:
   id-token: write
   contents: read
 
-
 jobs:
-   build-and-push-ecr-image:
+  build-and-push-ecr-image:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -23,6 +22,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y jq unzip
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -41,43 +41,41 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
           IMAGE_TAG: latest
         run: |
-          # Build a docker container and
-          # push it to ECR so that it can
-          # be deployed to ECS.
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          
-          
-    Continuous-Deployment:
-      needs: build-and-push-ecr-image
-      runs-on: self-hosted
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v3
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
 
-        - name: Configure AWS credentials
-          uses: aws-actions/configure-aws-credentials@v1
-          with:
-            aws-access-key-id: ${{ secrets.REDACTED }}
-            aws-secret-access-key: ${{ secrets.REDACTED }}
-            aws-region: ${{ secrets.AWS_REGION }}
+  Continuous-Deployment:
+    needs: build-and-push-ecr-image
+    runs-on: self-hosted  # or ubuntu-latest depending on your setup
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-        - name: Login to Amazon ECR
-          id: login-ecr
-          uses: aws-actions/amazon-ecr-login@v1
-        
-        
-        - name: Pull latest images
-          run: |
-            docker pull ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.REDACTED }}
+          aws-secret-access-key: ${{ secrets.REDACTED }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-        - name: Stop and remove storeapp container if running
-          run: |
-            docker ps -q --filter "name=storeapp" | grep -q . && docker stop storeapp && docker rm -fv storeapp || echo "No container named storeapp is running"
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Pull latest image from ECR
+        run: |
+          docker pull ${{ steps.build-image.outputs.image }}
 
+      - name: Stop and remove storeapp container if running
+        run: |
+          docker ps -q --filter "name=storeapp" | grep -q . && docker stop storeapp && docker rm -fv storeapp || echo "No container named storeapp is running"
 
-        - name: Run Docker Image to serve users
-          run: |
-            docker run -d -p 80:8080 --name=storeapp -e DB_HOST=${{ secrets.DB_HOST }} -e DB_USER=${{ secrets.DB_USER }} -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} -e GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} -e 'REDACTED=${{ secrets.REDACTED }}' -e 'REDACTED=${{ secrets.REDACTED }}' -e 'AWS_REGION=${{ secrets.AWS_REGION }}'  ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+      - name: Run Docker Image to serve users
+        run: |
+          docker run -d -p 80:8080 --name=storeapp \
+            -e DB_HOST=${{ secrets.DB_HOST }} \
+            -e DB_USER=${{ secrets.DB_USER }} \
+            -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -e GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
+            ${{ steps.build-image.outputs.image }}
