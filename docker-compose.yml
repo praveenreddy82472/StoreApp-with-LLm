@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile  # Ensure Dockerfile is present in the current directory
     ports:
-      - "5000:5000"
+      - "8080:8080"
     environment:
       DB_HOST: ${DB_HOST}  # Use value from .env
       DB_USER: ${DB_USER}  # Use value from .env
