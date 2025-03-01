@@ -151,7 +151,7 @@ def allowed_file(filename):
 
 upload_folder = app.config['UPLOAD_FOLDER']
 if not os.path.exists(upload_folder):
-    os.makedirs(upload_folder)
+    os.makedirs(upload_folder,exist_ok=True)
 
 
 # Route to serve uploaded files
