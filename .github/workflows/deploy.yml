@@ -79,6 +79,9 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+      - name: Verify Docker Login
+        run: |
+          docker info  # This ensures Docker is properly authenticated with ECR.
 
       - name: Pull latest images
         run: |
