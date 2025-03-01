@@ -14,7 +14,7 @@ Praveen Store is an e-commerce application designed for buying and selling produ
 
 ## Chatbot Integration
 The chatbot utilizes the following Generative AI models:
-- **Google Gemini** or **LLaMA** (or other chosen LLMs for natural language understanding).
+- **Google Gemini** 
 
 
 ## Technologies Used
