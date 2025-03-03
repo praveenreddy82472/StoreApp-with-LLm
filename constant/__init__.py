@@ -1,5 +1,0 @@
-DB_HOST="host.docker.internal"
-DB_USER="root"
-DB_PASSWORD="praveen987@"
-DB_NAME="praveenstore_db"
-GOOGLE_API_KEY = "AIzaSyDPvYNiln3Jq3qxT20m_lc0tJH4Z4DG-78"
